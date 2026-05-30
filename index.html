@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あつまれ じしゅきかくの森</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Kosugi+Maru&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #5cb85c;
+      --green-dk: #388e3c;
+      --green-lt: #a5d6a7;
+      --yellow: #ffd54f;
+      --bg: #e8f5e9;
+      --white: #fff;
+      --text: #2c1810;
+      --text-s: #5d4037;
+      --brown: #795548;
+      --r: 18px;
+      --sh: 0 6px 20px rgba(0,0,0,0.11);
+      --sh-h: 0 12px 32px rgba(0,0,0,0.18);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Yomogi','Kosugi Maru','Hiragino Maru Gothic ProN',sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 1.5px 1.5px, rgba(100,180,100,0.13) 1.5px, transparent 0);
+      background-size: 22px 22px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ── Animations ── */
+    @keyframes bounceIn {
+      0%  { opacity:0; transform:scale(.75) translateY(28px); }
+      65% { transform:scale(1.04) translateY(-5px); }
+      100%{ opacity:1; transform:scale(1) translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(36px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes float {
+      0%,100%{ transform:translateY(0); }
+      50%    { transform:translateY(-13px); }
+    }
+    @keyframes floatAlt {
+      0%,100%{ transform:translateY(0) rotate(-3deg); }
+      50%    { transform:translateY(-11px) rotate(3deg); }
+    }
+    @keyframes leafSway {
+      0%,100%{ transform:rotate(-11deg) scale(1); }
+      50%    { transform:rotate(11deg) scale(1.06); }
+    }
+    @keyframes pulse {
+      0%,100%{ box-shadow:0 4px 18px rgba(56,142,60,.5); }
+      50%    { box-shadow:0 6px 34px rgba(56,142,60,.85); }
+    }
+    @keyframes arrowBounce {
+      0%,100%{ transform:translateX(-50%) translateY(0); opacity:.7; }
+      50%    { transform:translateX(-50%) translateY(9px); opacity:1; }
+    }
+
+    /* ── Scroll reveal ── */
+    .rv { opacity:0; transform:translateY(36px);
+          transition:opacity .55s ease, transform .55s ease; }
+    .rv.on { opacity:1; transform:translateY(0); }
+    .d1{transition-delay:.1s} .d2{transition-delay:.2s}
+    .d3{transition-delay:.3s} .d4{transition-delay:.4s}
+    .d5{transition-delay:.5s}
+
+    /* ── HERO ── */
+    .hero {
+      position:relative;
+      background:linear-gradient(180deg,
+        #87ceeb 0%, #b3d9f5 26%, #ddc9a0 56%, #85c151 80%, #4a9626 100%);
+      min-height:100svh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:48px 20px 110px;
+      overflow:hidden; text-align:center;
+    }
+    .hero-logo {
+      width:min(370px,88vw);
+      border-radius:22px;
+      box-shadow:0 10px 40px rgba(0,0,0,.22);
+      animation:bounceIn 1s ease both;
+      position:relative; z-index:2; margin-bottom:22px;
+    }
+    .hero-sub {
+      font-size:clamp(.92rem,2.8vw,1.12rem);
+      background:white; color:var(--green-dk);
+      font-weight:bold; padding:10px 26px;
+      border-radius:99px; box-shadow:var(--sh);
+      animation:fadeUp .8s .7s ease both;
+      position:relative; z-index:2;
+    }
+    .hero-tree {
+      position:absolute; bottom:60px;
+      mix-blend-mode:multiply; pointer-events:none; z-index:1;
+    }
+    .ht-l  { left:-12px;  width:clamp(90px,21vw,200px); animation:floatAlt 4.2s ease-in-out infinite; }
+    .ht-r  { right:-10px; width:clamp(80px,18vw,170px); animation:floatAlt 3.7s ease-in-out infinite .5s; }
+    .ht-r2 { right:clamp(52px,13vw,150px); bottom:52px;
+              width:clamp(58px,12vw,118px); animation:float 5s ease-in-out infinite 1.1s; }
+    .hero-arrow {
+      position:absolute; bottom:78px; left:50%;
+      font-size:1.6rem; color:rgba(255,255,255,.82);
+      text-shadow:0 2px 6px rgba(0,0,0,.3);
+      animation:arrowBounce 2s ease-in-out infinite; z-index:4;
+    }
+    .hero-wave { position:absolute; bottom:-2px; left:0; width:100%; z-index:3; }
+    .hero-wave svg { display:block; width:100%; }
+
+    /* ── Tanuki banner ── */
+    .tanuki { max-width:600px; margin:0 auto; padding:22px 16px 4px; }
+    .tanuki img { width:100%; border-radius:var(--r); box-shadow:var(--sh); }
+
+    /* ── Wave ── */
+    .wv { display:block; width:100%; line-height:0; }
+
+    /* ── Section base ── */
+    .sec { max-width:580px; margin:0 auto; padding:36px 18px; }
+    .sec-title {
+      display:flex; align-items:center; gap:10px;
+      font-size:clamp(1.08rem,3.5vw,1.3rem);
+      font-weight:bold; color:var(--brown); margin-bottom:20px;
+    }
+    .sec-title::after {
+      content:''; flex:1; height:3px;
+      background:linear-gradient(to right,var(--green-lt),transparent);
+      border-radius:3px;
+    }
+    .sec-icon {
+      width:34px; height:34px; object-fit:contain;
+      mix-blend-mode:multiply; flex-shrink:0;
+      animation:leafSway 3.6s ease-in-out infinite;
+    }
+
+    /* ── What is ── */
+    .what-card {
+      background:white; border-radius:var(--r);
+      padding:22px 20px; box-shadow:var(--sh);
+      border-left:6px solid var(--green);
+      line-height:1.88; font-size:.94rem; color:var(--text-s);
+    }
+    .what-card p+p { margin-top:10px; }
+
+    /* ── Fruit divider ── */
+    .fruit-row { text-align:center; padding:2px 16px; }
+    .fruit-row img { max-width:min(340px,88vw); margin:0 auto; mix-blend-mode:multiply; }
+
+    /* ── Steps ── */
+    .steps { display:flex; flex-direction:column; }
+    .step-card {
+      background:white; border-radius:var(--r);
+      box-shadow:var(--sh); display:flex;
+      align-items:flex-start; gap:14px; padding:18px;
+      transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .step-card:hover { transform:translateY(-5px); box-shadow:var(--sh-h); }
+    .step-num {
+      background:var(--green); color:white;
+      font-size:.74rem; font-weight:bold;
+      min-width:44px; height:44px; border-radius:50%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      flex-shrink:0; line-height:1.2;
+      box-shadow:0 3px 8px rgba(92,184,92,.35);
+    }
+    .step-title { font-weight:bold; font-size:1rem; margin-bottom:4px; }
+    .step-desc  { font-size:.86rem; color:var(--text-s); line-height:1.76; }
+    .step-line  {
+      width:3px; height:16px;
+      background:linear-gradient(to bottom,var(--green-lt),transparent);
+      margin:2px 0 2px 38px; border-radius:3px;
+    }
+
+    /* ── Gallery ── */
+    .gal-bg {
+      background:linear-gradient(160deg,#e0f2f1 0%,#f9fbe7 100%);
+      padding:36px 0;
+    }
+    .gal-head { max-width:580px; margin:0 auto 18px; padding:0 18px; }
+    .gal-scroll {
+      overflow-x:auto; padding:8px 18px 22px;
+      cursor:grab; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; user-select:none;
+    }
+    .gal-scroll::-webkit-scrollbar { display:none; }
+    .gal-scroll:active { cursor:grabbing; }
+    .gal-track { display:flex; gap:14px; width:max-content; }
+    .gal-card {
+      width:212px; flex-shrink:0; background:white;
+      border-radius:var(--r); box-shadow:var(--sh);
+      overflow:hidden;
+      transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .gal-card:hover { transform:translateY(-7px) scale(1.02); box-shadow:var(--sh-h); }
+    .gal-card img { width:100%; height:126px; object-fit:cover; }
+    .gal-label { padding:10px 12px; font-size:.79rem; color:var(--text-s); font-weight:bold; line-height:1.4; }
+
+    /* ── After approval ── */
+    .after-list { display:flex; flex-direction:column; gap:12px; }
+    .after-card {
+      background:white; border-radius:var(--r);
+      box-shadow:var(--sh); padding:16px;
+      display:flex; align-items:flex-start; gap:12px;
+      font-size:.91rem; line-height:1.78; color:var(--text-s);
+      transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .after-card:hover { transform:translateY(-4px); box-shadow:var(--sh-h); }
+    .aico  { font-size:1.5rem; flex-shrink:0; }
+    .atitle{ font-weight:bold; color:var(--text); display:block; margin-bottom:3px; }
+    .caution {
+      background:#fffde7; border-left:4px solid #ffb300;
+      border-radius:10px; padding:9px 14px;
+      font-size:.82rem; color:#6d4c00; margin-top:8px;
+    }
+
+    /* ── Template ── */
+    .tpl-outer {
+      background:linear-gradient(135deg,#dcedc8,#fff9c4 70%);
+      border-radius:24px; padding:26px 18px 24px; box-shadow:var(--sh);
+    }
+    .tpl-hint { text-align:center; font-size:.84rem; color:var(--text-s); margin-bottom:14px; }
+    .tpl-text {
+      background:white; border:2.5px dashed var(--green);
+      border-radius:var(--r); padding:18px 16px;
+      white-space:pre-wrap; font-family:inherit;
+      font-size:.9rem; line-height:1.92; color:var(--text);
+      margin-bottom:18px;
+    }
+    .copy-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; max-width:280px; margin:0 auto;
+      background:linear-gradient(135deg,#66bb6a,#388e3c);
+      color:white; border:none; border-radius:99px;
+      padding:16px 28px; font-family:inherit;
+      font-size:1.05rem; font-weight:bold; cursor:pointer;
+      animation:pulse 2.5s ease-in-out infinite;
+      transition:transform .15s ease, background .3s ease;
+    }
+    .copy-btn:active { transform:scale(.95); }
+    .copy-btn.copied {
+      background:linear-gradient(135deg,#ffd54f,#f9a825);
+      animation:none;
+      box-shadow:0 4px 20px rgba(249,168,37,.55);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background:#2e7d32; color:white;
+      text-align:center; padding:32px 20px;
+      font-size:.88rem; line-height:2.1;
+    }
+    .footer-trees { display:flex; justify-content:center; gap:16px; margin-bottom:14px; }
+    .footer-trees img {
+      width:50px; filter:invert(1); opacity:.72;
+      animation:float 4s ease-in-out infinite;
+    }
+    .footer-trees img:nth-child(2) { animation-delay:.65s; width:43px; }
+    .footer-trees img:nth-child(3) { animation-delay:1.3s; width:47px; }
+    .footer-title { font-weight:bold; font-size:1rem; }
+
+    @media(max-width:380px){
+      .ht-r2   { display:none; }
+      .gal-card{ width:180px; }
+      .gal-card img{ height:108px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero">
+  <img class="hero-tree ht-l"  src="sozai/S__31580219.jpg" alt="">
+  <img class="hero-tree ht-r"  src="sozai/S__31580214.jpg" alt="">
+  <img class="hero-tree ht-r2" src="sozai/S__31580218.jpg" alt="">
+
+  <img class="hero-logo"
+       src="sozai/「じしゅきかくの森」タイトルロゴver2.jpg"
+       alt="あつまれ じしゅきかくの森">
+  <p class="hero-sub">🎪 誰でも簡単に始められる自主企画！</p>
+
+  <div class="hero-arrow">↓</div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1200 70" preserveAspectRatio="none">
+      <path d="M0,35 C200,70 400,0 600,35 C800,70 1000,0 1200,35 L1200,70 L0,70 Z"
+            fill="#e8f5e9"/>
+    </svg>
+  </div>
+</header>
+
+<!-- ═══ TANUKI BANNER ═══ -->
+<div class="tanuki rv">
+  <img src="sozai/S__31580207.jpg" alt="楽しい企画を待ってるだなも！">
+</div>
+
+<!-- ═══ WHAT IS ═══ -->
+<section class="sec rv">
+  <h2 class="sec-title">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    自主プロってなあに？
+  </h2>
+  <div class="what-card">
+    <p>ピースボートセンターとうきょう（ピーセン）では、誰でも自分で企画を発案・開催できる仕組みを作りました🌿</p>
+    <p>「やってみたい！」と思ったら、スタッフに大きく頼らなくても自分たちで時間と場所を作って実行できます。</p>
+    <p>「カンボジアに行ってみた話」「ゲーム大会」「ものづくりワークショップ」…なんでもOK！</p>
+  </div>
+</section>
+
+<!-- fruit -->
+<div class="fruit-row rv"><img src="sozai/S__31580217.jpg" alt=""></div>
+
+<!-- ═══ STEPS ═══ -->
+<section class="sec">
+  <h2 class="sec-title rv">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    申請の流れ
+  </h2>
+  <div class="steps">
+    <div class="step-card rv d1">
+      <div class="step-num">STEP<br>1</div>
+      <div><div class="step-title">企画内容を確認する</div>
+      <div class="step-desc">誰でも参加できる内容で、ボラスタ規約7条に触れないものにしよう。</div></div>
+    </div>
+    <div class="step-line"></div>
+
+    <div class="step-card rv d2">
+      <div class="step-num">STEP<br>2</div>
+      <div><div class="step-title">申請シートを記入する</div>
+      <div class="step-desc">企画日・開始〜終了時間・企画名・PA申請の有無・代表者氏名を書いてね。</div></div>
+    </div>
+    <div class="step-line"></div>
+
+    <div class="step-card rv d3">
+      <div class="step-num">STEP<br>3</div>
+      <div><div class="step-title">スタッフに直接手渡す</div>
+      <div class="step-desc">記入できたら <strong>そ～り</strong> か <strong>マイカブ</strong> に直接渡してね📝</div></div>
+    </div>
+    <div class="step-line"></div>
+
+    <div class="step-card rv d4">
+      <div class="step-num">STEP<br>4</div>
+      <div><div class="step-title">内容確認・打ち合わせ</div>
+      <div class="step-desc">スタッフが企画内容の確認と、会場の使い方（設営・PA）をレクチャーするよ。</div></div>
+    </div>
+    <div class="step-line"></div>
+
+    <div class="step-card rv d5">
+      <div class="step-num">STEP<br>5</div>
+      <div><div class="step-title">掲示板 &amp; LINE でお知らせ</div>
+      <div class="step-desc">受付完了！スタッフが掲示板掲載と公式LINEへのお知らせ配信を準備するよ🌟</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- wave: bg → gallery -->
+<svg class="wv" viewBox="0 0 1200 60" preserveAspectRatio="none" style="background:var(--bg)">
+  <path d="M0,30 C300,60 600,0 900,30 C1050,45 1150,10 1200,30 L1200,60 L0,60 Z" fill="#e0f2f1"/>
+</svg>
+
+<!-- ═══ GALLERY ═══ -->
+<div class="gal-bg">
+  <div class="gal-head rv">
+    <h2 class="sec-title">
+      <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+      こんな企画が生まれたよ！
+    </h2>
+  </div>
+  <div class="gal-scroll" id="galScroll">
+    <div class="gal-track">
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt="関東ラーメン博物館">
+        <div class="gal-label">関東ラーメン博物館</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt="おかえりなさい企画">
+        <div class="gal-label">Sumとそ～り SELF おかえりなさい企画</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt="ヴィパッサナー瞑想体験記">
+        <div class="gal-label">ヴィパッサナー瞑想体験記</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt="動物占いとは？">
+        <div class="gal-label">動物占いとは？</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt="リゾバのイロハ">
+        <div class="gal-label">リゾバのイロハ</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt="MBTI診断">
+        <div class="gal-label">MBTI診断（16性格）ってなぁに？</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt="馬場×ノミになる話">
+        <div class="gal-label">麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt="ビブリオバトル">
+        <div class="gal-label">Let's play ビブリオバトル</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt="日本一周体験談">
+        <div class="gal-label">ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- wave: gallery → bg -->
+<svg class="wv" viewBox="0 0 1200 60" preserveAspectRatio="none" style="background:#e0f2f1">
+  <path d="M0,30 C200,0 500,60 800,30 C1000,10 1150,50 1200,30 L1200,60 L0,60 Z" fill="#e8f5e9"/>
+</svg>
+
+<!-- ═══ AFTER APPROVAL ═══ -->
+<section class="sec">
+  <h2 class="sec-title rv">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    申請が通ったら
+  </h2>
+  <div class="after-list">
+    <div class="after-card rv d1">
+      <span class="aico">📌</span>
+      <div><span class="atitle">掲示板に企画名を掲載</span>
+        申請書通りの企画名が掲示板に載るよ。
+        <div class="caution">⚠️ 国旗・特定の人種・宗教などが特定されるデザインは使えません</div>
+      </div>
+    </div>
+    <div class="after-card rv d2">
+      <span class="aico">📲</span>
+      <div><span class="atitle">公式LINEでお知らせ配信</span>
+        下のテンプレを使って内容を作成 → スタッフチェック後に配信されるよ。
+      </div>
+    </div>
+    <div class="after-card rv d3">
+      <span class="aico">🏃</span>
+      <div><span class="atitle">当日：開始30分前に来場</span>
+        会場の設営・準備のため、企画開始の30分前にはピーセンに来てね🌿
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- fruit -->
+<div class="fruit-row rv"><img src="sozai/S__31580217.jpg" alt=""></div>
+
+<!-- ═══ TEMPLATE ═══ -->
+<section class="sec rv">
+  <h2 class="sec-title">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    LINE告知テンプレ
+  </h2>
+  <div class="tpl-outer">
+    <p class="tpl-hint">↓ このテンプレをコピーして使ってね！</p>
+    <div class="tpl-text" id="tplText">【自主企画のお知らせ🍃】
+自己紹介文章（80文字以内）
+
+★イベント名
+～こちらに入力～
+
+内容：（50文字以内）
+
+日付：
+時間：
+会場：とうきょうピーセン
+最後にみんなに向けて一言！</div>
+    <button class="copy-btn" id="copyBtn" onclick="doCopy()">
+      <span id="cIco">📋</span><span id="cLbl">ワンタップでコピー</span>
+    </button>
+  </div>
+</section>
+
+<!-- wave: bg → footer -->
+<svg class="wv" viewBox="0 0 1200 70" preserveAspectRatio="none" style="background:var(--bg)">
+  <path d="M0,35 C300,0 600,70 900,35 C1050,15 1150,55 1200,35 L1200,70 L0,70 Z" fill="#2e7d32"/>
+</svg>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-trees">
+    <img src="sozai/S__31580219.jpg" alt="">
+    <img src="sozai/S__31580218.jpg" alt="">
+    <img src="sozai/S__31580214.jpg" alt="">
+  </div>
+  <div class="footer-title">とうきょうピーセン 自主プロ係</div>
+  <div style="opacity:.78;font-size:.82rem;margin-top:4px;">ご不明な点はスタッフまでお声がけください🌿</div>
+</footer>
+
+<script>
+  /* scroll reveal */
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('on');
+  }), { threshold: 0.12 });
+  document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+  /* gallery drag scroll */
+  const gs = document.getElementById('galScroll');
+  let down = false, sx, sl;
+  gs.addEventListener('mousedown', e => { down=true; sx=e.pageX-gs.offsetLeft; sl=gs.scrollLeft; });
+  document.addEventListener('mouseup', () => down=false);
+  gs.addEventListener('mousemove', e => {
+    if (!down) return;
+    e.preventDefault();
+    gs.scrollLeft = sl - (e.pageX - gs.offsetLeft - sx) * 1.5;
+  });
+
+  /* copy template */
+  function doCopy() {
+    const text = document.getElementById('tplText').innerText;
+    const btn = document.getElementById('copyBtn');
+    const set = () => {
+      btn.classList.add('copied');
+      document.getElementById('cIco').textContent = '✅';
+      document.getElementById('cLbl').textContent = 'コピーしました！';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        document.getElementById('cIco').textContent = '📋';
+        document.getElementById('cLbl').textContent = 'ワンタップでコピー';
+      }, 2600);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(set).catch(() => { legacyCopy(); set(); });
+    } else { legacyCopy(); set(); }
+    function legacyCopy() {
+      const r = document.createRange();
+      r.selectNode(document.getElementById('tplText'));
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      document.execCommand('copy'); s.removeAllRanges();
+    }
+  }
+</script>
+</body>
+</html>
