@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(gh *)",
-      "WebFetch(domain:github.com)"
-    ]
-  }
-}
