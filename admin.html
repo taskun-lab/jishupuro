@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者ページ｜じしゅきかくの森</title>
+  <link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Kosugi+Maru&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #5cb85c; --green-dk: #388e3c; --green-lt: #a5d6a7;
+      --yellow: #ffd54f; --bg: #e8f5e9; --text: #2c1810; --text-s: #5d4037;
+      --brown: #795548; --r: 14px;
+      --sh: 0 4px 16px rgba(0,0,0,0.11);
+    }
+    body {
+      font-family: 'Yomogi','Kosugi Maru',sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 1.5px 1.5px, rgba(100,180,100,0.12) 1.5px, transparent 0);
+      background-size: 22px 22px;
+      color: var(--text); min-height: 100vh;
+    }
+
+    /* ── Password screen ── */
+    #pwScreen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+    }
+    .pw-card {
+      background: white; border-radius: 24px; box-shadow: var(--sh);
+      padding: 40px 32px; text-align: center; width: 100%; max-width: 360px;
+    }
+    .pw-card img { width: 60px; margin: 0 auto 16px; }
+    .pw-card h1 { font-size: 1.3rem; color: var(--brown); margin-bottom: 24px; }
+    .pw-input {
+      width: 100%; padding: 14px 16px; border: 2px solid var(--green-lt);
+      border-radius: 99px; font-family: inherit; font-size: 1rem;
+      text-align: center; outline: none; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .pw-input:focus { border-color: var(--green); }
+    .pw-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg,#66bb6a,#388e3c);
+      color: white; border: none; border-radius: 99px; font-family: inherit;
+      font-size: 1rem; font-weight: bold; cursor: pointer;
+      transition: transform .15s ease;
+    }
+    .pw-btn:active { transform: scale(.97); }
+    .pw-err { color: #e53935; font-size: .87rem; margin-top: 10px; }
+
+    /* ── Admin panel ── */
+    #adminPanel { display: none; }
+    .admin-header {
+      background: #2e7d32; color: white;
+      padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+    }
+    .admin-header img { width: 32px; filter: invert(1); opacity: .8; }
+    .admin-header h1 { font-size: 1.1rem; }
+    .admin-header .logout {
+      margin-left: auto; background: rgba(255,255,255,.2);
+      border: none; color: white; border-radius: 99px;
+      padding: 6px 14px; font-family: inherit; font-size: .83rem;
+      cursor: pointer;
+    }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; background: white; border-bottom: 2px solid var(--green-lt); }
+    .tab-btn {
+      flex: 1; padding: 14px 8px; border: none; background: none;
+      font-family: inherit; font-size: .88rem; font-weight: bold;
+      color: var(--text-s); cursor: pointer;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: color .2s, border-color .2s;
+    }
+    .tab-btn.active { color: var(--green-dk); border-bottom-color: var(--green-dk); }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: white; border-radius: var(--r);
+      box-shadow: var(--sh); padding: 18px; margin-bottom: 16px;
+    }
+    .card-title {
+      font-weight: bold; color: var(--brown); font-size: 1rem;
+      margin-bottom: 14px; padding-bottom: 8px;
+      border-bottom: 2px solid var(--green-lt);
+    }
+
+    /* ── Forms ── */
+    .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .form-row label { font-size: .85rem; color: var(--text-s); font-weight: bold; }
+    .form-input, .form-select, .form-textarea {
+      padding: 10px 14px; border: 2px solid var(--green-lt);
+      border-radius: 10px; font-family: inherit; font-size: .95rem;
+      outline: none; transition: border-color .2s; width: 100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--green); }
+    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .form-row-inline { display: flex; gap: 8px; }
+    .form-row-inline .form-input { flex: 1; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 20px; border: none; border-radius: 99px;
+      font-family: inherit; font-size: .9rem; font-weight: bold;
+      cursor: pointer; transition: transform .15s ease;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-green { background: linear-gradient(135deg,#66bb6a,#388e3c); color: white; }
+    .btn-red   { background: #ef5350; color: white; }
+    .btn-gray  { background: #e0e0e0; color: var(--text-s); }
+    .btn-sm    { padding: 6px 14px; font-size: .8rem; }
+    .btn-full  { width: 100%; padding: 14px; font-size: 1rem; }
+
+    /* ── Event list ── */
+    .ev-item {
+      background: #f9fbe7; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ev-item-date { font-weight: bold; min-width: 46px; font-size: .9rem; }
+    .ev-item-title { flex: 1; font-size: .93rem; }
+    .ev-item-status {
+      border-radius: 99px; padding: 3px 10px;
+      font-size: .74rem; font-weight: bold; color: white;
+    }
+    .ev-item-btns { display: flex; gap: 6px; flex-shrink: 0; }
+    .ev-empty { color: var(--text-s); text-align: center; padding: 16px; font-size: .9rem; }
+
+    /* ── Photo upload ── */
+    .photo-upload-area {
+      border: 2.5px dashed var(--green); border-radius: var(--r);
+      padding: 28px 20px; text-align: center; cursor: pointer;
+      background: #f1f8e9; transition: background .2s;
+    }
+    .photo-upload-area:hover { background: #dcedc8; }
+    .photo-upload-area input { display: none; }
+    .upload-icon { font-size: 2.4rem; margin-bottom: 8px; display: block; }
+    .upload-hint { font-size: .88rem; color: var(--text-s); }
+    .current-photo { width: 100%; border-radius: var(--r); margin-bottom: 12px; box-shadow: var(--sh); }
+
+    /* ── Status badge ── */
+    .badge-募集中   { background: #5cb85c; }
+    .badge-開催予定 { background: #ff9800; }
+    .badge-終了     { background: #9e9e9e; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 12px 24px;
+      border-radius: 99px; font-size: .9rem; font-weight: bold;
+      opacity: 0; transition: opacity .3s ease; pointer-events: none; z-index: 999;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── Edit modal ── */
+    #editModal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 100;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    #editModal.open { display: flex; }
+    .modal-card {
+      background: white; border-radius: 20px; padding: 24px 20px;
+      width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,.25);
+    }
+    .modal-title { font-weight: bold; color: var(--brown); font-size: 1.05rem; margin-bottom: 16px; }
+    .modal-btns  { display: flex; gap: 8px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ PASSWORD SCREEN ═══ -->
+<div id="pwScreen">
+  <div class="pw-card">
+    <img src="sozai/S__31580216.jpg" alt="">
+    <h1>🌿 管理者ページ</h1>
+    <input class="pw-input" type="password" id="pwInput"
+           placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">ログイン</button>
+    <p class="pw-err" id="pwErr" style="display:none">パスワードが違います</p>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div id="adminPanel">
+
+  <div class="admin-header">
+    <img src="sozai/S__31580216.jpg" alt="">
+    <h1>じしゅきかくの森 管理者ページ</h1>
+    <button class="logout" onclick="logout()">ログアウト</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('events',this)">📋 企画管理</button>
+    <button class="tab-btn"        onclick="switchTab('photo',this)" >📷 掲示板写真</button>
+    <button class="tab-btn"        onclick="switchTab('text',this)"  >✏️ テキスト設定</button>
+  </div>
+
+  <!-- TAB 1: 企画管理 -->
+  <div class="tab-panel active" id="tab-events">
+
+    <div class="card">
+      <div class="card-title">＋ 企画を追加</div>
+      <div class="form-row">
+        <label>日付（例：6/19）</label>
+        <input class="form-input" id="addDate" placeholder="6/19">
+      </div>
+      <div class="form-row">
+        <label>企画名</label>
+        <input class="form-input" id="addTitle" placeholder="企画名を入力">
+      </div>
+      <div class="form-row">
+        <label>状態</label>
+        <select class="form-select" id="addStatus">
+          <option>募集中</option>
+          <option>開催予定</option>
+          <option>終了</option>
+        </select>
+      </div>
+      <button class="btn btn-green btn-full" onclick="addEvent()">追加する</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">現在の企画一覧</div>
+      <div id="eventList"><p class="ev-empty">読み込み中...</p></div>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: 掲示板写真 -->
+  <div class="tab-panel" id="tab-photo">
+    <div class="card">
+      <div class="card-title">掲示板の写真</div>
+      <img id="currentPhoto" class="current-photo" src="" alt="" style="display:none">
+      <label class="photo-upload-area" id="uploadArea">
+        <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(this)">
+        <span class="upload-icon">📷</span>
+        <span style="font-weight:bold; display:block; margin-bottom:4px;">写真を選択してアップロード</span>
+        <span class="upload-hint">タップして写真を選ぶ</span>
+      </label>
+      <div style="margin-top:12px;">
+        <button class="btn btn-green btn-full" id="uploadBtn" onclick="uploadPhoto()" style="display:none">
+          アップロードする
+        </button>
+      </div>
+      <p id="uploadStatus" style="text-align:center; font-size:.87rem; color:var(--text-s); margin-top:8px;"></p>
+    </div>
+  </div>
+
+  <!-- TAB 3: テキスト設定 -->
+  <div class="tab-panel" id="tab-text">
+    <div class="card">
+      <div class="card-title">ページのテキスト設定</div>
+      <div class="form-row">
+        <label>ヒーロー下のサブテキスト</label>
+        <input class="form-input" id="txtHeroSub" placeholder="誰でも簡単に始められる自主企画！">
+      </div>
+      <div class="form-row">
+        <label>「自主プロとは？」段落①</label>
+        <textarea class="form-textarea" id="txtWhat1"></textarea>
+      </div>
+      <div class="form-row">
+        <label>「自主プロとは？」段落②</label>
+        <textarea class="form-textarea" id="txtWhat2"></textarea>
+      </div>
+      <div class="form-row">
+        <label>「自主プロとは？」段落③</label>
+        <textarea class="form-textarea" id="txtWhat3"></textarea>
+      </div>
+      <button class="btn btn-green btn-full" onclick="saveText()">保存する</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ EDIT MODAL ═══ -->
+<div id="editModal">
+  <div class="modal-card">
+    <div class="modal-title">企画を編集</div>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <label>日付</label>
+      <input class="form-input" id="editDate">
+    </div>
+    <div class="form-row">
+      <label>企画名</label>
+      <input class="form-input" id="editTitle">
+    </div>
+    <div class="form-row">
+      <label>状態</label>
+      <select class="form-select" id="editStatus">
+        <option>募集中</option>
+        <option>開催予定</option>
+        <option>終了</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" style="flex:1" onclick="closeEdit()">キャンセル</button>
+      <button class="btn btn-green" style="flex:2" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc,
+         doc, updateDoc, getDoc, setDoc, serverTimestamp, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD7tSKKaGkkul4QPRez4dbZm2vqq3yMK1s",
+  authDomain: "jishupuro.firebaseapp.com",
+  projectId: "jishupuro",
+  storageBucket: "jishupuro.firebasestorage.app",
+  messagingSenderId: "924133934118",
+  appId: "1:924133934118:web:0b671fe7c7534cc6f8d2e7"
+};
+
+const app     = initializeApp(firebaseConfig);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+const PASSWORD = '562008';
+const STATUS_COLOR = { '募集中':'#5cb85c', '開催予定':'#ff9800', '終了':'#9e9e9e' };
+
+/* ── Auth ── */
+window.checkPw = () => {
+  if (document.getElementById('pwInput').value === PASSWORD) {
+    document.getElementById('pwScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadEvents();
+    loadCurrentPhoto();
+    loadTextSettings();
+  } else {
+    document.getElementById('pwErr').style.display = 'block';
+  }
+};
+window.logout = () => location.reload();
+
+/* ── Tabs ── */
+window.switchTab = (name, btn) => {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+};
+
+/* ── Toast ── */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ── Events ── */
+async function loadEvents() {
+  const list = document.getElementById('eventList');
+  try {
+    const q    = query(collection(db, 'events'), orderBy('createdAt', 'asc'));
+    const snap = await getDocs(q);
+    if (snap.empty) { list.innerHTML = '<p class="ev-empty">企画はまだありません</p>'; return; }
+    list.innerHTML = '';
+    snap.forEach(d => {
+      const e = d.data();
+      const col = STATUS_COLOR[e.status] || '#9e9e9e';
+      list.innerHTML += `
+        <div class="ev-item">
+          <span class="ev-item-date">${e.date}</span>
+          <span class="ev-item-title">${e.title}</span>
+          <span class="ev-item-status" style="background:${col}">${e.status}</span>
+          <div class="ev-item-btns">
+            <button class="btn btn-gray btn-sm"
+              onclick="openEdit('${d.id}','${e.date}','${e.title}','${e.status}')">編集</button>
+            <button class="btn btn-red btn-sm" onclick="deleteEvent('${d.id}')">削除</button>
+          </div>
+        </div>`;
+    });
+  } catch(e) { list.innerHTML = '<p class="ev-empty">読み込みエラー</p>'; }
+}
+
+window.addEvent = async () => {
+  const date   = document.getElementById('addDate').value.trim();
+  const title  = document.getElementById('addTitle').value.trim();
+  const status = document.getElementById('addStatus').value;
+  if (!date || !title) { toast('日付と企画名を入力してください'); return; }
+  try {
+    await addDoc(collection(db, 'events'), { date, title, status, createdAt: serverTimestamp() });
+    document.getElementById('addDate').value  = '';
+    document.getElementById('addTitle').value = '';
+    toast('✅ 企画を追加しました');
+    loadEvents();
+  } catch(e) { toast('エラーが発生しました'); }
+};
+
+window.deleteEvent = async (id) => {
+  if (!confirm('この企画を削除しますか？')) return;
+  try {
+    await deleteDoc(doc(db, 'events', id));
+    toast('🗑️ 削除しました');
+    loadEvents();
+  } catch(e) { toast('削除エラー'); }
+};
+
+/* ── Edit modal ── */
+window.openEdit = (id, date, title, status) => {
+  document.getElementById('editId').value     = id;
+  document.getElementById('editDate').value   = date;
+  document.getElementById('editTitle').value  = title;
+  document.getElementById('editStatus').value = status;
+  document.getElementById('editModal').classList.add('open');
+};
+window.closeEdit = () => document.getElementById('editModal').classList.remove('open');
+window.saveEdit  = async () => {
+  const id     = document.getElementById('editId').value;
+  const date   = document.getElementById('editDate').value.trim();
+  const title  = document.getElementById('editTitle').value.trim();
+  const status = document.getElementById('editStatus').value;
+  if (!date || !title) { toast('日付と企画名を入力してください'); return; }
+  try {
+    await updateDoc(doc(db, 'events', id), { date, title, status });
+    closeEdit();
+    toast('✅ 更新しました');
+    loadEvents();
+  } catch(e) { toast('更新エラー'); }
+};
+
+/* ── Photo upload ── */
+let selectedFile = null;
+window.handlePhoto = (input) => {
+  if (!input.files[0]) return;
+  selectedFile = input.files[0];
+  const url = URL.createObjectURL(selectedFile);
+  const cur = document.getElementById('currentPhoto');
+  cur.src = url; cur.style.display = 'block';
+  document.getElementById('uploadBtn').style.display = 'block';
+  document.getElementById('uploadStatus').textContent = selectedFile.name + ' を選択中';
+};
+
+window.uploadPhoto = async () => {
+  if (!selectedFile) return;
+  const btn = document.getElementById('uploadBtn');
+  btn.textContent = 'アップロード中...'; btn.disabled = true;
+  try {
+    const storageRef = ref(storage, `bulletin/${Date.now()}_${selectedFile.name}`);
+    await uploadBytes(storageRef, selectedFile);
+    const url = await getDownloadURL(storageRef);
+    await setDoc(doc(db, 'settings', 'page'), { bulletinPhotoUrl: url }, { merge: true });
+    toast('📷 写真をアップロードしました');
+    document.getElementById('uploadStatus').textContent = 'アップロード完了！';
+  } catch(e) {
+    toast('アップロードエラー: ' + e.message);
+  } finally {
+    btn.textContent = 'アップロードする'; btn.disabled = false;
+  }
+};
+
+async function loadCurrentPhoto() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'page'));
+    if (snap.exists() && snap.data().bulletinPhotoUrl) {
+      const cur = document.getElementById('currentPhoto');
+      cur.src = snap.data().bulletinPhotoUrl;
+      cur.style.display = 'block';
+    }
+  } catch(_) {}
+}
+
+/* ── Text settings ── */
+const TEXT_DEFAULTS = {
+  heroSub: '誰でも簡単に始められる自主企画！',
+  what1: 'ピースボートセンターとうきょう（ピーセン）では、誰でも自分で企画を発案・開催できる仕組みを作りました🌿',
+  what2: '「やってみたい！」と思ったら、スタッフに大きく頼らなくても自分たちで時間と場所を作って実行できます。',
+  what3: '「カンボジアに行ってみた話」「ゲーム大会」「ものづくりワークショップ」…なんでもOK！'
+};
+
+async function loadTextSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'page'));
+    const s = snap.exists() ? snap.data() : {};
+    document.getElementById('txtHeroSub').value = s.heroSub || TEXT_DEFAULTS.heroSub;
+    document.getElementById('txtWhat1').value   = s.what1   || TEXT_DEFAULTS.what1;
+    document.getElementById('txtWhat2').value   = s.what2   || TEXT_DEFAULTS.what2;
+    document.getElementById('txtWhat3').value   = s.what3   || TEXT_DEFAULTS.what3;
+  } catch(_) {
+    document.getElementById('txtHeroSub').value = TEXT_DEFAULTS.heroSub;
+    document.getElementById('txtWhat1').value   = TEXT_DEFAULTS.what1;
+    document.getElementById('txtWhat2').value   = TEXT_DEFAULTS.what2;
+    document.getElementById('txtWhat3').value   = TEXT_DEFAULTS.what3;
+  }
+}
+
+window.saveText = async () => {
+  try {
+    await setDoc(doc(db, 'settings', 'page'), {
+      heroSub: document.getElementById('txtHeroSub').value,
+      what1:   document.getElementById('txtWhat1').value,
+      what2:   document.getElementById('txtWhat2').value,
+      what3:   document.getElementById('txtWhat3').value
+    }, { merge: true });
+    toast('✅ テキストを保存しました');
+  } catch(e) { toast('保存エラー'); }
+};
+</script>
+</body>
+</html>

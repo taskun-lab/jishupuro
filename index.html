@@ -272,6 +272,44 @@
       .gal-card{ width:180px; }
       .gal-card img{ height:108px; }
     }
+
+    /* ── Cork board (events) ── */
+    .cork-board {
+      background:#c8956a;
+      border:10px solid #7a4f1d;
+      border-radius:var(--r);
+      padding:16px;
+      box-shadow:inset 0 2px 8px rgba(0,0,0,.25), var(--sh);
+      display:flex; flex-direction:column; gap:12px;
+      min-height:80px;
+    }
+    .ev-row { display:flex; align-items:center; gap:10px; }
+    .ev-pin { font-size:1.1rem; flex-shrink:0; }
+    .ev-date {
+      background:white; border-radius:8px;
+      padding:6px 10px; min-width:54px;
+      text-align:center; font-weight:bold; font-size:.9rem;
+      box-shadow:2px 2px 4px rgba(0,0,0,.2); flex-shrink:0;
+    }
+    .ev-title {
+      flex:1; background:#f5efd8; border-radius:8px;
+      padding:10px 14px; font-weight:bold; font-size:1rem;
+      box-shadow:2px 2px 4px rgba(0,0,0,.15);
+    }
+    .ev-status {
+      border-radius:99px; padding:4px 10px;
+      font-size:.75rem; font-weight:bold;
+      color:white; white-space:nowrap; flex-shrink:0;
+    }
+    .board-msg {
+      color:rgba(255,255,255,.85); text-align:center;
+      padding:14px; font-size:.92rem;
+    }
+    .b-photo-wrap { margin-top:14px; }
+    .b-photo-wrap img { width:100%; border-radius:var(--r); box-shadow:var(--sh); }
+    .b-photo-caption {
+      text-align:center; font-size:.8rem; color:var(--text-s); margin-top:6px;
+    }
   </style>
 </head>
 <body>
@@ -300,6 +338,21 @@
 <div class="tanuki rv">
   <img src="sozai/S__31580207.jpg" alt="楽しい企画を待ってるだなも！">
 </div>
+
+<!-- ═══ EVENTS (bulletin board) ═══ -->
+<section class="sec rv">
+  <h2 class="sec-title">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    今後の企画
+  </h2>
+  <div class="cork-board" id="eventBoard">
+    <p class="board-msg">読み込み中...</p>
+  </div>
+  <div class="b-photo-wrap" id="bPhotoWrap" style="display:none">
+    <img id="bPhoto" src="" alt="掲示板の写真">
+    <p class="b-photo-caption">📌 実際の掲示板</p>
+  </div>
+</section>
 
 <!-- ═══ WHAT IS ═══ -->
 <section class="sec rv">
@@ -518,6 +571,66 @@
       document.execCommand('copy'); s.removeAllRanges();
     }
   }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD7tSKKaGkkul4QPRez4dbZm2vqq3yMK1s",
+    authDomain: "jishupuro.firebaseapp.com",
+    projectId: "jishupuro",
+    storageBucket: "jishupuro.firebasestorage.app",
+    messagingSenderId: "924133934118",
+    appId: "1:924133934118:web:0b671fe7c7534cc6f8d2e7"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const STATUS_COLOR = { '募集中':'#5cb85c', '開催予定':'#ff9800', '終了':'#9e9e9e' };
+
+  async function loadBoard() {
+    const board = document.getElementById('eventBoard');
+    try {
+      const q    = query(collection(db, 'events'), orderBy('createdAt', 'asc'));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        board.innerHTML = '<p class="board-msg">企画を準備中です 🌿</p>';
+      } else {
+        board.innerHTML = '';
+        snap.forEach(d => {
+          const e = d.data();
+          const col = STATUS_COLOR[e.status] || '#9e9e9e';
+          board.innerHTML += `
+            <div class="ev-row">
+              <span class="ev-pin">📌</span>
+              <div class="ev-date">${e.date}</div>
+              <div class="ev-title">${e.title}</div>
+              <div class="ev-status" style="background:${col}">${e.status}</div>
+            </div>`;
+        });
+      }
+    } catch(_) {
+      board.innerHTML = '<p class="board-msg">企画を準備中です 🌿</p>';
+    }
+  }
+
+  async function loadSettings() {
+    try {
+      const snap = await getDoc(doc(db, 'settings', 'page'));
+      if (!snap.exists()) return;
+      const s = snap.data();
+      if (s.bulletinPhotoUrl) {
+        document.getElementById('bPhoto').src = s.bulletinPhotoUrl;
+        document.getElementById('bPhotoWrap').style.display = 'block';
+      }
+    } catch(_) {}
+  }
+
+  loadBoard();
+  loadSettings();
 </script>
 </body>
 </html>
