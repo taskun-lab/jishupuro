@@ -185,6 +185,21 @@
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 
     @media(max-width:380px){.ht-r2{display:none}.gal-card{width:180px}.gal-card img{height:108px}}
+
+    /* ── Drag & drop ── */
+    body.edit-mode .ev-row,
+    body.edit-mode .gal-card:not(.gal-add-card){
+      -webkit-touch-callout:none;touch-action:none;cursor:grab;
+    }
+    .drag-ghost{opacity:.2!important;transition:none!important}
+    .drag-clone{position:fixed;pointer-events:none;z-index:9999;opacity:.93;
+      box-shadow:0 12px 30px rgba(0,0,0,.4);border-radius:var(--r);
+      transform:rotate(1.5deg);transition:none}
+    body.edit-mode .ev-row::before{
+      content:'⠿';position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+      font-size:1rem;color:rgba(0,0,0,.25);pointer-events:none;
+    }
+    .ev-row{position:relative}
   </style>
 </head>
 <body>
@@ -347,15 +362,15 @@
   </div>
   <div class="gal-scroll" id="galScroll">
     <div class="gal-track" id="galTrack">
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
+      <div class="gal-card" data-card-id="h0"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
+      <div class="gal-card" data-card-id="h1"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
+      <div class="gal-card" data-card-id="h2"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
+      <div class="gal-card" data-card-id="h3"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
+      <div class="gal-card" data-card-id="h4"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
+      <div class="gal-card" data-card-id="h5"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
+      <div class="gal-card" data-card-id="h6"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
+      <div class="gal-card" data-card-id="h7"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
+      <div class="gal-card" data-card-id="h8"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
       <!-- dynamic items injected here -->
       <div class="gal-card gal-add-card" onclick="document.getElementById('galFileInput').click()">
         <div class="gal-add-inner">＋</div>
@@ -454,8 +469,10 @@
 </script>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc, serverTimestamp }
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc,
+         doc, getDoc, setDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const cfg = {
@@ -538,7 +555,8 @@ function enterEditMode(){
   document.getElementById('tplText').contentEditable='true';
   syncBPhotoBtn();
   loadEvents();
-  toast('✏️ 編集モードになりました。緑の枠をタップして編集できます');
+  setupGalleryDrag();
+  toast('✏️ 編集モードになりました。長押しで並び替えできます');
 }
 
 window.cancelEdit = () => {
@@ -599,6 +617,8 @@ async function loadSettings(){
       if(s[id]!==undefined){ const el=document.getElementById(id); if(el) el.innerHTML=s[id]; }
     });
     if(s.tplText!==undefined) document.getElementById('tplText').innerText=s.tplText;
+    if(s.evOrder)  window._evOrder  = s.evOrder;
+    if(s.galOrder) window._galOrder = s.galOrder;
     if(s.tanukiImgUrl) document.getElementById('tanukiImg').src=s.tanukiImgUrl;
     if(s.bulletinPhotoUrl){
       document.getElementById('bPhoto').src=s.bulletinPhotoUrl;
@@ -621,7 +641,7 @@ async function loadEvents(){
     board.innerHTML = evs.map(e=>{
       const c=SC[e.status]||'#9e9e9e';
       const del=adminMode?`<button class="ev-del-btn" onclick="delEvent('${e.id}')">✕</button>`:'';
-      return `<div class="ev-row">
+      return `<div class="ev-row" data-ev-id="${e.id}">
         <div class="ev-top">
           <span class="ev-pin">📌</span>
           <div class="ev-date">${e.date}</div>
@@ -631,6 +651,16 @@ async function loadEvents(){
         <div class="ev-title">${e.title}</div>
       </div>`;
     }).join('')+addBtn;
+
+    // 保存済み順序を適用
+    if (window._evOrder?.length) {
+      const rows=[...board.querySelectorAll('.ev-row')];
+      const addBt=board.querySelector('.board-add-btn');
+      [...window._evOrder.map(id=>rows.find(r=>r.dataset.evId===id)).filter(Boolean),
+       ...rows.filter(r=>!window._evOrder.includes(r.dataset.evId))]
+        .forEach(r=>addBt?board.insertBefore(r,addBt):board.appendChild(r));
+    }
+    if(adminMode) setupEventsDrag();
   } catch(e){
     board.innerHTML=`<p class="board-msg">読み込みエラー: ${e.code||e.message}</p>`;
   }
@@ -694,6 +724,17 @@ async function loadGallery(){
     const addCard=track.querySelector('.gal-add-card');
     snap.forEach(d=>{ const g=d.data(); track.insertBefore(mkGalCard(d.id,g.url,g.label), addCard); });
   } catch(_){}
+  // 保存済み順序を適用
+  if(window._galOrder?.length){
+    const track=document.getElementById('galTrack');
+    const addCard=track.querySelector('.gal-add-card');
+    const allCards=[...track.querySelectorAll('.gal-card:not(.gal-add-card)')];
+    window._galOrder
+      .map(id=>allCards.find(c=>(c.dataset.cardId||c.dataset.galId)===id))
+      .filter(Boolean)
+      .forEach(c=>track.insertBefore(c,addCard));
+  }
+  if(adminMode) setupGalleryDrag();
 }
 function mkGalCard(id,url,label){
   const div=document.createElement('div'); div.className='gal-card'; div.dataset.galId=id;
@@ -718,6 +759,120 @@ window.delGal = async id=>{
   try { await deleteDoc(doc(db,'gallery',id)); document.querySelector(`[data-gal-id="${id}"]`)?.remove(); toast('🗑️ 削除しました'); }
   catch(_){ toast('削除エラー'); }
 };
+
+/* ══════════════════════════════════════
+   長押しドラッグ並び替え
+   （参考：task.js setupDragHandle）
+   ══════════════════════════════════════ */
+function setupLongPressDrag(el, container, axis, onEnd){
+  let timer=null;
+  const pos=ev=>{ const p=ev.touches?.[0]||ev; return axis==='h'?p.clientX:p.clientY; };
+
+  const startPress=e=>{
+    if(!adminMode) return;
+    const p0=pos(e);
+    timer=setTimeout(()=>{
+      timer=null;
+      if(navigator.vibrate) navigator.vibrate(30);
+      doDrag(p0);
+    },500);
+  };
+  const cancel=()=>{ clearTimeout(timer); timer=null; };
+
+  const doDrag=p0=>{
+    const rect=el.getBoundingClientRect();
+    const clone=el.cloneNode(true);
+    Object.assign(clone.style,{
+      position:'fixed',
+      left:rect.left+'px', top:rect.top+'px',
+      width:rect.width+'px', height:rect.height+'px',
+      pointerEvents:'none', zIndex:'9999', opacity:'.93',
+      boxShadow:'0 12px 30px rgba(0,0,0,.4)',
+      borderRadius:'18px', transition:'none', transform:'rotate(1.5deg)'
+    });
+    document.body.appendChild(clone);
+    el.classList.add('drag-ghost');
+    document.body.style.userSelect='none';
+    document.body.style.webkitUserSelect='none';
+
+    const move=ev=>{
+      ev.preventDefault();
+      const d=pos(ev)-p0;
+      if(axis==='h') clone.style.left=(rect.left+d)+'px';
+      else           clone.style.top =(rect.top +d)+'px';
+
+      const center=(axis==='h')
+        ? rect.left+d+rect.width /2
+        : rect.top +d+rect.height/2;
+
+      const sibs=[...container.children].filter(c=>
+        c!==el && !c.classList.contains('drag-ghost') &&
+        !c.classList.contains('gal-add-card') && c.tagName!=='BUTTON');
+
+      for(const s of sibs){
+        const sr=s.getBoundingClientRect();
+        const sc=axis==='h'?sr.left+sr.width/2:sr.top+sr.height/2;
+        if(center<sc){ container.insertBefore(el,s); return; }
+      }
+      const last=container.querySelector('.gal-add-card,.board-add-btn');
+      last ? container.insertBefore(el,last) : container.appendChild(el);
+    };
+
+    const up=()=>{
+      document.removeEventListener('pointermove',move);
+      document.removeEventListener('pointerup',up);
+      document.removeEventListener('touchmove',move);
+      document.removeEventListener('touchend',up);
+      clone.remove();
+      el.classList.remove('drag-ghost');
+      document.body.style.userSelect='';
+      document.body.style.webkitUserSelect='';
+      onEnd?.();
+    };
+
+    document.addEventListener('pointermove',move,{passive:false});
+    document.addEventListener('pointerup',up);
+    document.addEventListener('touchmove',move,{passive:false});
+    document.addEventListener('touchend',up);
+  };
+
+  // pointerdown でタイマー開始
+  el.addEventListener('pointerdown', startPress);
+  el.addEventListener('pointerup',   cancel);
+  el.addEventListener('pointermove', cancel);
+  el.addEventListener('pointercancel',cancel);
+  // iOS コピーメニューを完全ブロック
+  el.addEventListener('touchstart', e=>{ if(adminMode){ e.preventDefault(); startPress(e); } }, {passive:false});
+  el.addEventListener('contextmenu', e=>{ if(adminMode) e.preventDefault(); });
+}
+
+function setupEventsDrag(){
+  const board=document.getElementById('eventBoard');
+  board.querySelectorAll('.ev-row').forEach(row=>{
+    setupLongPressDrag(row, board, 'v', saveEvOrder);
+  });
+}
+
+function setupGalleryDrag(){
+  const track=document.getElementById('galTrack');
+  track.querySelectorAll('.gal-card:not(.gal-add-card)').forEach(card=>{
+    setupLongPressDrag(card, track, 'h', saveGalOrder);
+  });
+}
+
+async function saveEvOrder(){
+  const order=[...document.querySelectorAll('#eventBoard .ev-row')]
+    .map(r=>r.dataset.evId).filter(Boolean);
+  window._evOrder=order;
+  try{ await setDoc(doc(db,'settings','page'),{evOrder:order},{merge:true}); }catch(_){}
+}
+
+async function saveGalOrder(){
+  const order=[...document.querySelectorAll('#galTrack .gal-card:not(.gal-add-card)')]
+    .map(c=>c.dataset.cardId||c.dataset.galId).filter(Boolean);
+  window._galOrder=order;
+  try{ await setDoc(doc(db,'settings','page'),{galOrder:order},{merge:true}); }catch(_){}
+}
 
 /* ── Init ── */
 checkFirebase();
