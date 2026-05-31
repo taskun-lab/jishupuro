@@ -231,8 +231,9 @@
 </div>
 
 <!-- Hidden file inputs -->
-<input type="file" id="bPhotoInput"  accept="image/*" style="display:none" onchange="uploadBPhoto(this)">
-<input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="uploadGalImage(this)">
+<input type="file" id="bPhotoInput"   accept="image/*" style="display:none" onchange="uploadBPhoto(this)">
+<input type="file" id="galFileInput"  accept="image/*" style="display:none" onchange="uploadGalImage(this)">
+<input type="file" id="tanukiInput"   accept="image/*" style="display:none" onchange="uploadTanuki(this)">
 
 <!-- Float menu -->
 <div class="fmenu-wrap">
@@ -262,7 +263,9 @@
 
 <!-- TANUKI -->
 <div class="tanuki rv">
-  <img src="sozai/S__31580207.jpg" alt="楽しい企画を待ってるだなも！">
+  <div class="img-ed-wrap" onclick="triggerTanuki()">
+    <img id="tanukiImg" src="sozai/S__31580207.jpg" alt="楽しい企画を待ってるだなも！">
+  </div>
 </div>
 
 <!-- EVENTS -->
@@ -595,6 +598,7 @@ async function loadSettings(){
       if(s[id]!==undefined){ const el=document.getElementById(id); if(el) el.innerHTML=s[id]; }
     });
     if(s.tplText!==undefined) document.getElementById('tplText').innerText=s.tplText;
+    if(s.tanukiImgUrl) document.getElementById('tanukiImg').src=s.tanukiImgUrl;
     if(s.bulletinPhotoUrl){
       document.getElementById('bPhoto').src=s.bulletinPhotoUrl;
       document.getElementById('bPhotoWrap').style.display='block';
@@ -637,6 +641,19 @@ window.delEvent = async id=>{
   if(!confirm('この企画を削除しますか？')) return;
   try { await deleteDoc(doc(db,'events',id)); toast('🗑️ 削除しました'); loadEvents(); }
   catch(_){ toast('削除エラー'); }
+};
+
+/* ── Tanuki banner ── */
+window.triggerTanuki = ()=>{ if(adminMode) document.getElementById('tanukiInput').click(); };
+window.uploadTanuki = async input=>{
+  if(!input.files[0]) return;
+  toast('📷 処理中...');
+  try {
+    const dataUrl = await compress(input.files[0], 1000, 0.82);
+    await setDoc(doc(db,'settings','page'),{tanukiImgUrl: dataUrl},{merge:true});
+    document.getElementById('tanukiImg').src = dataUrl;
+    toast('✅ 画像を保存しました', 3000);
+  } catch(e){ toast('❌ '+e.message, 5000); }
 };
 
 /* ── Bulletin photo ── */
