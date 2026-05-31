@@ -554,14 +554,21 @@ window.saveAll = async () => {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>保存中...';
-  setStatus('Firebaseに保存しています...');
+  setStatus('Firebaseに接続中...');
 
   const data={};
   TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.innerHTML;});
   data.tplText = document.getElementById('tplText').innerText;
 
+  const timeout = new Promise((_,reject) =>
+    setTimeout(()=>reject(new Error('タイムアウト(10秒)。Firestoreのデータベースが作成されているか確認してください。')), 10000)
+  );
+
   try {
-    await setDoc(doc(db,'settings','page'), data, {merge:true});
+    await Promise.race([
+      setDoc(doc(db,'settings','page'), data, {merge:true}),
+      timeout
+    ]);
     adminMode=false;
     document.body.classList.remove('edit-mode');
     TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
@@ -574,7 +581,7 @@ window.saveAll = async () => {
   } catch(e){
     btn.disabled=false; btn.innerHTML='💾 保存して終了';
     setStatus('');
-    toast('❌ 保存失敗: '+e.message, 5000);
+    toast('❌ '+e.message, 8000);
   }
 };
 
