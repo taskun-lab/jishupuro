@@ -25,12 +25,13 @@
     @keyframes leafSway{0%,100%{transform:rotate(-11deg) scale(1)}50%{transform:rotate(11deg) scale(1.06)}}
     @keyframes pulse{0%,100%{box-shadow:0 4px 18px rgba(56,142,60,.5)}50%{box-shadow:0 6px 34px rgba(56,142,60,.85)}}
     @keyframes arrowBounce{0%,100%{transform:translateX(-50%) translateY(0);opacity:.7}50%{transform:translateX(-50%) translateY(9px);opacity:1}}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
     .rv{opacity:0;transform:translateY(36px);transition:opacity .55s ease,transform .55s ease}
     .rv.on{opacity:1;transform:translateY(0)}
     .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}
 
-    /* HERO */
+    /* ── HERO ── */
     .hero{position:relative;background:linear-gradient(180deg,#87ceeb 0%,#b3d9f5 26%,#ddc9a0 56%,#85c151 80%,#4a9626 100%);min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px 110px;overflow:hidden;text-align:center}
     .hero-logo{width:min(370px,88vw);border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.22);animation:bounceIn 1s ease both;position:relative;z-index:2;margin-bottom:22px}
     .hero-sub{font-size:clamp(.92rem,2.8vw,1.12rem);background:white;color:var(--green-dk);font-weight:bold;padding:10px 26px;border-radius:99px;box-shadow:var(--sh);animation:fadeUp .8s .7s ease both;position:relative;z-index:2}
@@ -42,22 +43,22 @@
     .hero-wave{position:absolute;bottom:-2px;left:0;width:100%;z-index:3}
     .hero-wave svg{display:block;width:100%}
 
+    /* ── BASE ── */
     .tanuki{max-width:600px;margin:0 auto;padding:22px 16px 4px}
     .tanuki img{width:100%;border-radius:var(--r);box-shadow:var(--sh)}
     .wv{display:block;width:100%;line-height:0}
-
-    /* SECTIONS */
     .sec{max-width:580px;margin:0 auto;padding:36px 18px}
     .sec-title{display:flex;align-items:center;gap:10px;font-size:clamp(1.08rem,3.5vw,1.3rem);font-weight:bold;color:var(--brown);margin-bottom:20px}
     .sec-title::after{content:'';flex:1;height:3px;background:linear-gradient(to right,var(--green-lt),transparent);border-radius:3px}
     .sec-icon{width:34px;height:34px;object-fit:contain;mix-blend-mode:multiply;flex-shrink:0;animation:leafSway 3.6s ease-in-out infinite}
 
+    /* ── WHAT IS ── */
     .what-card{background:white;border-radius:var(--r);padding:22px 20px;box-shadow:var(--sh);border-left:6px solid var(--green);line-height:1.88;font-size:.94rem;color:var(--text-s)}
     .what-card p+p{margin-top:10px}
-
     .fruit-row{text-align:center;padding:2px 16px}
     .fruit-row img{max-width:min(340px,88vw);margin:0 auto;mix-blend-mode:multiply}
 
+    /* ── STEPS ── */
     .steps{display:flex;flex-direction:column}
     .step-card{background:white;border-radius:var(--r);box-shadow:var(--sh);display:flex;align-items:flex-start;gap:14px;padding:18px;transition:transform .22s ease,box-shadow .22s ease}
     .step-card:hover{transform:translateY(-5px);box-shadow:var(--sh-h)}
@@ -66,7 +67,7 @@
     .step-desc{font-size:.86rem;color:var(--text-s);line-height:1.76}
     .step-line{width:3px;height:16px;background:linear-gradient(to bottom,var(--green-lt),transparent);margin:2px 0 2px 38px;border-radius:3px}
 
-    /* GALLERY */
+    /* ── GALLERY ── */
     .gal-bg{background:linear-gradient(160deg,#e0f2f1 0%,#f9fbe7 100%);padding:36px 0}
     .gal-head{max-width:580px;margin:0 auto 18px;padding:0 18px}
     .gal-scroll{overflow-x:auto;padding:8px 18px 22px;cursor:grab;-webkit-overflow-scrolling:touch;scrollbar-width:none;user-select:none}
@@ -78,7 +79,7 @@
     .gal-card img{width:100%;height:126px;object-fit:cover}
     .gal-label{padding:10px 12px;font-size:.79rem;color:var(--text-s);font-weight:bold;line-height:1.4}
 
-    /* AFTER / TEMPLATE */
+    /* ── AFTER / TEMPLATE ── */
     .after-list{display:flex;flex-direction:column;gap:12px}
     .after-card{background:white;border-radius:var(--r);box-shadow:var(--sh);padding:16px;display:flex;align-items:flex-start;gap:12px;font-size:.91rem;line-height:1.78;color:var(--text-s);transition:transform .22s ease,box-shadow .22s ease}
     .after-card:hover{transform:translateY(-4px);box-shadow:var(--sh-h)}
@@ -92,7 +93,7 @@
     .copy-btn:active{transform:scale(.95)}
     .copy-btn.copied{background:linear-gradient(135deg,#ffd54f,#f9a825);animation:none;box-shadow:0 4px 20px rgba(249,168,37,.55)}
 
-    /* FOOTER */
+    /* ── FOOTER ── */
     footer{background:#2e7d32;color:white;text-align:center;padding:32px 20px;font-size:.88rem;line-height:2.1}
     .footer-trees{display:flex;justify-content:center;gap:16px;margin-bottom:14px}
     .footer-trees img{width:50px;filter:invert(1);opacity:.72;animation:float 4s ease-in-out infinite}
@@ -100,7 +101,7 @@
     .footer-trees img:nth-child(3){animation-delay:1.3s;width:47px}
     .footer-title{font-weight:bold;font-size:1rem}
 
-    /* CORK BOARD */
+    /* ── CORK BOARD ── */
     .cork-board{background:#c8956a;border:10px solid #7a4f1d;border-radius:var(--r);padding:16px;box-shadow:inset 0 2px 8px rgba(0,0,0,.25),var(--sh);display:flex;flex-direction:column;gap:12px;min-height:80px}
     .ev-row{display:flex;align-items:center;gap:10px}
     .ev-pin{font-size:1.1rem;flex-shrink:0}
@@ -112,7 +113,7 @@
     .b-photo-wrap img{width:100%;border-radius:var(--r);box-shadow:var(--sh)}
     .b-photo-caption{text-align:center;font-size:.8rem;color:var(--text-s);margin-top:6px}
 
-    /* FLOAT MENU */
+    /* ── FLOAT MENU ── */
     .fmenu-wrap{position:fixed;bottom:24px;right:20px;z-index:900;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
     .fmenu-btn{width:52px;height:52px;border-radius:50%;border:none;background:#2e7d32;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s ease}
     .fmenu-btn:active{transform:scale(.93)}
@@ -120,16 +121,19 @@
     .fmenu-items.open{display:flex}
     .fmenu-item{background:white;border:none;border-radius:99px;padding:10px 18px;font-family:inherit;font-size:.9rem;font-weight:bold;color:var(--text);box-shadow:var(--sh);cursor:pointer;white-space:nowrap}
 
-    /* EDIT MODE */
-    .edit-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#2e7d32;color:white;padding:10px 16px;display:none;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    /* ── EDIT MODE ── */
+    .edit-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#2e7d32;color:white;padding:10px 16px;display:none;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
     body.edit-mode .edit-bar{display:flex}
     body.edit-mode{padding-top:52px}
     body.edit-mode .fmenu-wrap{display:none}
-    .edit-bar-title{font-weight:bold;font-size:.95rem;flex:1}
-    .ebar-btn{padding:7px 16px;border:none;border-radius:99px;font-family:inherit;font-size:.85rem;font-weight:bold;cursor:pointer}
+    .edit-bar-title{font-weight:bold;font-size:.9rem;flex:1}
+    .ebar-btn{padding:7px 14px;border:none;border-radius:99px;font-family:inherit;font-size:.82rem;font-weight:bold;cursor:pointer;white-space:nowrap}
     .ebar-save{background:var(--yellow);color:#3d2f00}
+    .ebar-save:disabled{opacity:.6;cursor:not-allowed}
     .ebar-cancel{background:rgba(255,255,255,.2);color:white}
+    .ebar-status{font-size:.78rem;opacity:.85}
 
+    /* Editable elements */
     body.edit-mode [data-ed]{outline:2px dashed rgba(92,184,92,.7);border-radius:4px;cursor:text;min-width:20px;transition:outline-color .2s}
     body.edit-mode [data-ed]:hover{outline-color:var(--green-dk)}
     body.edit-mode [data-ed]:focus{outline:2px solid var(--green-dk);background:rgba(255,255,255,.85)}
@@ -152,9 +156,9 @@
     body.edit-mode .gal-add-card{display:flex!important}
     .gal-add-inner{width:212px;height:126px;display:flex;align-items:center;justify-content:center;background:#f1f8e9;font-size:2.5rem;color:var(--green)}
 
-    /* Bulletin photo upload button (edit, no photo) */
+    /* Bulletin add button */
     .bphoto-add-btn{display:none;width:100%;margin-top:12px;padding:14px;background:var(--green);color:white;border:none;border-radius:99px;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer}
-    body.edit-mode .bphoto-add-btn.visible{display:block}
+    body.edit-mode .bphoto-add-btn.vis{display:block}
 
     /* Modals */
     .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:20px}
@@ -170,12 +174,14 @@
     .m-btn-gray{background:#e0e0e0;color:var(--text-s)}
     .modal-icon{width:48px;margin:0 auto 12px;display:block}
     .pw-err{color:#e53935;font-size:.85rem;text-align:center;margin-top:6px}
-    .m-cancel{display:block;width:100%;margin-top:8px;background:none;border:none;font-family:inherit;font-size:.83rem;color:var(--text-s);cursor:pointer}
     .m-label{font-size:.83rem;color:var(--text-s);font-weight:bold;display:block;margin-bottom:4px}
 
     /* Toast */
     #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:11px 22px;border-radius:99px;font-size:.88rem;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none;z-index:3000;white-space:nowrap}
     #toast.show{opacity:1}
+
+    /* Spinner */
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 
     @media(max-width:380px){.ht-r2{display:none}.gal-card{width:180px}.gal-card img{height:108px}}
   </style>
@@ -185,8 +191,9 @@
 <!-- Edit bar -->
 <div class="edit-bar" id="editBar">
   <span class="edit-bar-title">✏️ 編集モード</span>
+  <span class="ebar-status" id="ebarStatus"></span>
   <button class="ebar-btn ebar-cancel" onclick="cancelEdit()">破棄</button>
-  <button class="ebar-btn ebar-save"   onclick="saveAll()">💾 保存して終了</button>
+  <button class="ebar-btn ebar-save"   id="saveBtn" onclick="saveAll()">💾 保存して終了</button>
 </div>
 
 <!-- Password modal -->
@@ -261,7 +268,8 @@
 <!-- EVENTS -->
 <section class="sec rv">
   <h2 class="sec-title">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">今後の企画
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    <span id="st0" data-ed>今後の企画</span>
   </h2>
   <div class="cork-board" id="eventBoard">
     <p class="board-msg">読み込み中...</p>
@@ -279,7 +287,8 @@
 <!-- WHAT IS -->
 <section class="sec rv">
   <h2 class="sec-title">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">自主プロってなあに？
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    <span id="st1" data-ed>自主プロってなあに？</span>
   </h2>
   <div class="what-card">
     <p id="w1" data-ed>ピースボートセンターとうきょう（ピーセン）では、誰でも自分で企画を発案・開催できる仕組みを作りました🌿</p>
@@ -292,7 +301,10 @@
 
 <!-- STEPS -->
 <section class="sec">
-  <h2 class="sec-title rv"><img class="sec-icon" src="sozai/S__31580216.jpg" alt="">申請の流れ</h2>
+  <h2 class="sec-title rv">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    <span id="st2" data-ed>申請の流れ</span>
+  </h2>
   <div class="steps">
     <div class="step-card rv d1"><div class="step-num">STEP<br>1</div><div>
       <div class="step-title" id="s1t" data-ed>企画内容を確認する</div>
@@ -324,20 +336,23 @@
 <!-- GALLERY -->
 <div class="gal-bg">
   <div class="gal-head rv">
-    <h2 class="sec-title"><img class="sec-icon" src="sozai/S__31580216.jpg" alt="">こんな企画が生まれたよ！</h2>
+    <h2 class="sec-title">
+      <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+      <span id="st3" data-ed>こんな企画が生まれたよ！</span>
+    </h2>
   </div>
   <div class="gal-scroll" id="galScroll">
     <div class="gal-track" id="galTrack">
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label">関東ラーメン博物館</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label">Sumとそ～り SELF おかえりなさい企画</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label">ヴィパッサナー瞑想体験記</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label">動物占いとは？</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label">リゾバのイロハ</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label">MBTI診断（16性格）ってなぁに？</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label">麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label">Let's play ビブリオバトル</div></div>
-      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label">ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
-      <!-- dynamic gallery items injected here -->
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
+      <div class="gal-card"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
+      <!-- dynamic items injected here -->
       <div class="gal-card gal-add-card" onclick="document.getElementById('galFileInput').click()">
         <div class="gal-add-inner">＋</div>
         <div class="gal-label">画像を追加</div>
@@ -352,7 +367,10 @@
 
 <!-- AFTER APPROVAL -->
 <section class="sec">
-  <h2 class="sec-title rv"><img class="sec-icon" src="sozai/S__31580216.jpg" alt="">申請が通ったら</h2>
+  <h2 class="sec-title rv">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    <span id="st4" data-ed>申請が通ったら</span>
+  </h2>
   <div class="after-list">
     <div class="after-card rv d1"><span class="aico">📌</span><div>
       <span class="atitle" id="a1t" data-ed>掲示板に企画名を掲載</span>
@@ -374,7 +392,10 @@
 
 <!-- TEMPLATE -->
 <section class="sec rv">
-  <h2 class="sec-title"><img class="sec-icon" src="sozai/S__31580216.jpg" alt="">LINE告知テンプレ</h2>
+  <h2 class="sec-title">
+    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
+    <span id="st5" data-ed>LINE告知テンプレ</span>
+  </h2>
   <div class="tpl-outer">
     <p class="tpl-hint">↓ このテンプレをコピーして使ってね！</p>
     <div class="tpl-text" id="tplText" data-ed>【自主企画のお知らせ🍃】
@@ -403,25 +424,22 @@
   <div class="footer-trees">
     <img src="sozai/S__31580219.jpg" alt=""><img src="sozai/S__31580218.jpg" alt=""><img src="sozai/S__31580214.jpg" alt="">
   </div>
-  <div class="footer-title">とうきょうピーセン 自主プロ係</div>
-  <div style="opacity:.78;font-size:.82rem;margin-top:4px;">ご不明な点はスタッフまでお声がけください🌿</div>
+  <div class="footer-title" id="ftTitle" data-ed>とうきょうピーセン 自主プロ係</div>
+  <div id="ftSub" data-ed style="opacity:.78;font-size:.82rem;margin-top:4px;">ご不明な点はスタッフまでお声がけください🌿</div>
 </footer>
 
 <script>
-  /* scroll reveal */
   const obs = new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('on');
-  }), { threshold: 0.12 });
+    if(e.isIntersecting) e.target.classList.add('on');
+  }), {threshold:.12});
   document.querySelectorAll('.rv').forEach(el => obs.observe(el));
 
-  /* gallery drag */
   const gs = document.getElementById('galScroll');
   let dn=false,sx,sl;
   gs.addEventListener('mousedown',e=>{dn=true;sx=e.pageX-gs.offsetLeft;sl=gs.scrollLeft;});
   document.addEventListener('mouseup',()=>dn=false);
   gs.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();gs.scrollLeft=sl-(e.pageX-gs.offsetLeft-sx)*1.5;});
 
-  /* copy template */
   function doCopy(){
     const text=document.getElementById('tplText').innerText;
     const btn=document.getElementById('copyBtn');
@@ -452,10 +470,49 @@ const sto = getStorage(app);
 
 const PW = '562008';
 const SC = {'募集中':'#5cb85c','開催予定':'#ff9800','終了':'#9e9e9e'};
-const TEXT_IDS = ['heroSub','w1','w2','w3','s1t','s1d','s2t','s2d','s3t','s3d','s4t','s4d','s5t','s5d','a1t','a1b','a1c','a2t','a2b','a3t','a3b'];
+const TEXT_IDS = [
+  'heroSub','w1','w2','w3',
+  's1t','s1d','s2t','s2d','s3t','s3d','s4t','s4d','s5t','s5d',
+  'a1t','a1b','a1c','a2t','a2b','a3t','a3b',
+  'st0','st1','st2','st3','st4','st5',
+  'gl1','gl2','gl3','gl4','gl5','gl6','gl7','gl8','gl9',
+  'ftTitle','ftSub'
+];
 let adminMode = false;
 
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function toast(m, dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+function setStatus(m){ document.getElementById('ebarStatus').textContent = m; }
+
+/* ── Image compression ── */
+async function compress(file, maxW=1200, q=0.82){
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const ratio = Math.min(maxW / img.width, 1);
+      const c = document.createElement('canvas');
+      c.width  = img.width  * ratio;
+      c.height = img.height * ratio;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(blob => { URL.revokeObjectURL(url); resolve(blob); }, 'image/jpeg', q);
+    };
+    img.src = url;
+  });
+}
+
+/* ── Firebase health check ── */
+async function checkFirebase(){
+  try {
+    await getDoc(doc(db,'settings','page'));
+  } catch(e){
+    toast('⚠️ Firebase接続エラー: '+e.code, 5000);
+  }
+}
 
 /* ── Auth ── */
 window.openPwModal = () => {
@@ -467,11 +524,8 @@ window.openPwModal = () => {
 };
 window.closePwModal = () => document.getElementById('pwModal').classList.remove('open');
 window.tryLogin = () => {
-  if(document.getElementById('pwInput').value===PW){
-    closePwModal(); enterEditMode();
-  } else {
-    document.getElementById('pwErr').style.display='block';
-  }
+  if(document.getElementById('pwInput').value===PW){ closePwModal(); enterEditMode(); }
+  else { document.getElementById('pwErr').style.display='block'; }
 };
 
 /* ── Edit mode ── */
@@ -482,31 +536,46 @@ function enterEditMode(){
   document.getElementById('tplText').contentEditable='true';
   syncBPhotoBtn();
   loadEvents();
-  toast('✏️ 編集モードになりました');
+  toast('✏️ 編集モードになりました。緑の枠をタップして編集できます');
 }
+
 window.cancelEdit = () => {
   adminMode=false;
   document.body.classList.remove('edit-mode');
   TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
   document.getElementById('tplText').removeAttribute('contenteditable');
   syncBPhotoBtn();
+  setStatus('');
   loadAll();
   toast('変更を破棄しました');
 };
+
 window.saveAll = async () => {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>保存中...';
+  setStatus('Firebaseに保存しています...');
+
   const data={};
   TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.innerHTML;});
   data.tplText = document.getElementById('tplText').innerText;
+
   try {
-    await setDoc(doc(db,'settings','page'),data,{merge:true});
+    await setDoc(doc(db,'settings','page'), data, {merge:true});
     adminMode=false;
     document.body.classList.remove('edit-mode');
     TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
     document.getElementById('tplText').removeAttribute('contenteditable');
     syncBPhotoBtn();
+    setStatus('');
+    btn.disabled=false; btn.innerHTML='💾 保存して終了';
     loadEvents();
-    toast('✅ 保存しました！');
-  } catch(e){ toast('❌ 保存失敗: '+e.message); }
+    toast('✅ 保存しました！', 3000);
+  } catch(e){
+    btn.disabled=false; btn.innerHTML='💾 保存して終了';
+    setStatus('');
+    toast('❌ 保存失敗: '+e.message, 5000);
+  }
 };
 
 /* ── Load ── */
@@ -517,7 +586,9 @@ async function loadSettings(){
     const snap = await getDoc(doc(db,'settings','page'));
     if(!snap.exists()) return;
     const s = snap.data();
-    TEXT_IDS.forEach(id=>{ if(s[id]!==undefined){const el=document.getElementById(id);if(el)el.innerHTML=s[id];} });
+    TEXT_IDS.forEach(id=>{
+      if(s[id]!==undefined){ const el=document.getElementById(id); if(el) el.innerHTML=s[id]; }
+    });
     if(s.tplText!==undefined) document.getElementById('tplText').innerText=s.tplText;
     if(s.bulletinPhotoUrl){
       document.getElementById('bPhoto').src=s.bulletinPhotoUrl;
@@ -541,21 +612,23 @@ async function loadEvents(){
       const c=SC[e.status]||'#9e9e9e';
       const del=adminMode?`<button class="ev-del-btn" onclick="delEvent('${e.id}')">✕</button>`:'';
       return `<div class="ev-row"><span class="ev-pin">📌</span><div class="ev-date">${e.date}</div><div class="ev-title">${e.title}</div><div class="ev-status" style="background:${c}">${e.status}</div>${del}</div>`;
-    }).join('') + addBtn;
-  } catch(_){ document.getElementById('eventBoard').innerHTML='<p class="board-msg">企画を準備中です 🌿</p>'; }
+    }).join('')+addBtn;
+  } catch(e){
+    board.innerHTML=`<p class="board-msg">読み込みエラー: ${e.code||e.message}</p>`;
+  }
 }
 
-window.openEvModal  = () => { document.getElementById('evDate').value=''; document.getElementById('evTitle').value=''; document.getElementById('evModal').classList.add('open'); };
-window.closeEvModal = () => document.getElementById('evModal').classList.remove('open');
-window.addEventConfirm = async () => {
+window.openEvModal  = ()=>{ document.getElementById('evDate').value=''; document.getElementById('evTitle').value=''; document.getElementById('evModal').classList.add('open'); };
+window.closeEvModal = ()=> document.getElementById('evModal').classList.remove('open');
+window.addEventConfirm = async ()=>{
   const date=document.getElementById('evDate').value.trim();
   const title=document.getElementById('evTitle').value.trim();
   const status=document.getElementById('evStatus').value;
-  if(!date||!title){toast('日付と企画名を入力してください');return;}
+  if(!date||!title){ toast('日付と企画名を入力してください'); return; }
   try { await addDoc(collection(db,'events'),{date,title,status,createdAt:serverTimestamp()}); closeEvModal(); toast('✅ 企画を追加しました'); loadEvents(); }
   catch(e){ toast('エラー: '+e.message); }
 };
-window.delEvent = async id => {
+window.delEvent = async id=>{
   if(!confirm('この企画を削除しますか？')) return;
   try { await deleteDoc(doc(db,'events',id)); toast('🗑️ 削除しました'); loadEvents(); }
   catch(_){ toast('削除エラー'); }
@@ -563,25 +636,25 @@ window.delEvent = async id => {
 
 /* ── Bulletin photo ── */
 function syncBPhotoBtn(){
-  const btn = document.getElementById('bPhotoAddBtn');
-  const hasPhoto = document.getElementById('bPhotoWrap').style.display!=='none';
-  btn.classList.toggle('visible', adminMode && !hasPhoto);
+  const btn=document.getElementById('bPhotoAddBtn');
+  const hasPhoto=document.getElementById('bPhotoWrap').style.display!=='none';
+  btn.classList.toggle('vis', adminMode && !hasPhoto);
 }
-window.triggerBPhoto = () => { if(adminMode) document.getElementById('bPhotoInput').click(); };
-window.uploadBPhoto = async input => {
+window.triggerBPhoto = ()=>{ if(adminMode) document.getElementById('bPhotoInput').click(); };
+window.uploadBPhoto = async input=>{
   if(!input.files[0]) return;
-  toast('📷 アップロード中...');
+  toast('📷 圧縮・アップロード中...');
   try {
-    const file=input.files[0];
-    const r2=ref(sto,`bulletin/${Date.now()}_${file.name}`);
-    await uploadBytes(r2,file);
+    const blob = await compress(input.files[0], 1200, 0.82);
+    const r2=ref(sto,`bulletin/${Date.now()}.jpg`);
+    await uploadBytes(r2, blob);
     const url=await getDownloadURL(r2);
     await setDoc(doc(db,'settings','page'),{bulletinPhotoUrl:url},{merge:true});
     document.getElementById('bPhoto').src=url;
     document.getElementById('bPhotoWrap').style.display='block';
     syncBPhotoBtn();
-    toast('✅ 掲示板写真をアップロードしました');
-  } catch(e){ toast('❌ '+e.message); }
+    toast('✅ 掲示板写真をアップロードしました', 3000);
+  } catch(e){ toast('❌ '+e.message, 5000); }
 };
 
 /* ── Gallery ── */
@@ -599,29 +672,30 @@ function mkGalCard(id,url,label){
   div.innerHTML=`<button class="gal-del" onclick="delGal('${id}')">✕</button><img src="${url}" alt="${label}" style="width:100%;height:126px;object-fit:cover"><div class="gal-label">${label}</div>`;
   return div;
 }
-window.uploadGalImage = async input => {
+window.uploadGalImage = async input=>{
   if(!input.files[0]) return;
   const label=prompt('この画像のタイトルを入力してください：','企画名');
   if(!label) return;
-  toast('📷 アップロード中...');
+  toast('📷 圧縮・アップロード中...');
   try {
-    const file=input.files[0];
-    const r2=ref(sto,`gallery/${Date.now()}_${file.name}`);
-    await uploadBytes(r2,file);
+    const blob = await compress(input.files[0], 800, 0.80);
+    const r2=ref(sto,`gallery/${Date.now()}.jpg`);
+    await uploadBytes(r2,blob);
     const url=await getDownloadURL(r2);
     const dref=await addDoc(collection(db,'gallery'),{url,label,createdAt:serverTimestamp()});
     const track=document.getElementById('galTrack');
     track.insertBefore(mkGalCard(dref.id,url,label), track.querySelector('.gal-add-card'));
-    input.value='';
-    toast('✅ 画像を追加しました');
-  } catch(e){ toast('❌ '+e.message); }
+    input.value=''; toast('✅ 画像を追加しました', 3000);
+  } catch(e){ toast('❌ '+e.message, 5000); }
 };
-window.delGal = async id => {
+window.delGal = async id=>{
   if(!confirm('この画像を削除しますか？')) return;
   try { await deleteDoc(doc(db,'gallery',id)); document.querySelector(`[data-gal-id="${id}"]`)?.remove(); toast('🗑️ 削除しました'); }
   catch(_){ toast('削除エラー'); }
 };
 
+/* ── Init ── */
+checkFirebase();
 loadAll();
 </script>
 </body>
