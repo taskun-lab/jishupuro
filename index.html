@@ -62,7 +62,9 @@
     .steps{display:flex;flex-direction:column}
     .step-card{background:white;border-radius:var(--r);box-shadow:var(--sh);display:flex;align-items:flex-start;gap:14px;padding:18px;transition:transform .22s ease,box-shadow .22s ease}
     .step-card:hover{transform:translateY(-5px);box-shadow:var(--sh-h)}
-    .step-num{background:var(--green);color:white;font-size:.74rem;font-weight:bold;min-width:44px;height:44px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1.2;box-shadow:0 3px 8px rgba(92,184,92,.35)}
+    .step-num{background:var(--green);color:white;font-weight:bold;min-width:44px;width:44px;border-radius:22px;padding:7px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1;box-shadow:0 3px 8px rgba(92,184,92,.35)}
+    .step-s{font-size:.52rem;letter-spacing:.04em;opacity:.88}
+    .step-n{font-size:1.1rem;font-weight:bold;line-height:1.1}
     .step-title{font-weight:bold;font-size:1rem;margin-bottom:4px}
     .step-desc{font-size:.86rem;color:var(--text-s);line-height:1.76}
     .step-line{width:3px;height:16px;background:linear-gradient(to bottom,var(--green-lt),transparent);margin:2px 0 2px 38px;border-radius:3px}
@@ -150,6 +152,12 @@
     .board-add-btn{background:rgba(255,255,255,.2);color:white;border:2px dashed rgba(255,255,255,.6);border-radius:10px;padding:10px;width:100%;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;display:none}
     body.edit-mode .board-add-btn{display:block}
 
+    /* Step controls */
+    .step-del-btn{background:#ef5350;color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;flex-shrink:0;align-self:center;display:none;align-items:center;justify-content:center}
+    body.edit-mode .step-del-btn{display:flex}
+    .step-add-btn{background:rgba(92,184,92,.12);color:var(--green-dk);border:2px dashed var(--green);border-radius:10px;padding:10px;width:100%;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;margin-top:8px;display:none}
+    body.edit-mode .step-add-btn{display:block}
+
     /* Gallery edit */
     .gal-del{display:none;position:absolute;top:6px;right:6px;background:#ef5350;color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;z-index:10;align-items:center;justify-content:center}
     body.edit-mode .gal-del{display:flex}
@@ -189,7 +197,7 @@
     /* ── Drag & drop ── */
     body.edit-mode .ev-row,
     body.edit-mode .gal-card:not(.gal-add-card){
-      -webkit-touch-callout:none;touch-action:none;cursor:grab;
+      -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:grab;
     }
     .drag-ghost{opacity:.2!important;transition:none!important}
     .drag-clone{position:fixed;pointer-events:none;z-index:9999;opacity:.93;
@@ -324,28 +332,10 @@
     <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
     <span id="st2" data-ed>申請の流れ</span>
   </h2>
-  <div class="steps">
-    <div class="step-card rv d1"><div class="step-num">STEP<br>1</div><div>
-      <div class="step-title" id="s1t" data-ed>企画内容を確認する</div>
-      <div class="step-desc"  id="s1d" data-ed>誰でも参加できる内容で、ボラスタ規約7条に触れないものにしよう。</div>
-    </div></div><div class="step-line"></div>
-    <div class="step-card rv d2"><div class="step-num">STEP<br>2</div><div>
-      <div class="step-title" id="s2t" data-ed>申請シートを記入する</div>
-      <div class="step-desc"  id="s2d" data-ed>企画日・開始〜終了時間・企画名・PA申請の有無・代表者氏名を書いてね。</div>
-    </div></div><div class="step-line"></div>
-    <div class="step-card rv d3"><div class="step-num">STEP<br>3</div><div>
-      <div class="step-title" id="s3t" data-ed>スタッフに直接手渡す</div>
-      <div class="step-desc"  id="s3d" data-ed>記入できたら <strong>そ～り</strong> か <strong>マイカブ</strong> に直接渡してね📝</div>
-    </div></div><div class="step-line"></div>
-    <div class="step-card rv d4"><div class="step-num">STEP<br>4</div><div>
-      <div class="step-title" id="s4t" data-ed>内容確認・打ち合わせ</div>
-      <div class="step-desc"  id="s4d" data-ed>スタッフが企画内容の確認と、会場の使い方（設営・PA）をレクチャーするよ。</div>
-    </div></div><div class="step-line"></div>
-    <div class="step-card rv d5"><div class="step-num">STEP<br>5</div><div>
-      <div class="step-title" id="s5t" data-ed>掲示板 &amp; LINE でお知らせ</div>
-      <div class="step-desc"  id="s5d" data-ed>受付完了！スタッフが掲示板掲載と公式LINEへのお知らせ配信を準備するよ🌟</div>
-    </div></div>
+  <div class="steps" id="stepsContainer">
+    <!-- JS で動的に描画 -->
   </div>
+  <button class="step-add-btn" onclick="addStep()">＋ ステップを追加</button>
 </section>
 
 <svg class="wv" viewBox="0 0 1200 60" preserveAspectRatio="none" style="background:var(--bg)">
@@ -362,15 +352,15 @@
   </div>
   <div class="gal-scroll" id="galScroll">
     <div class="gal-track" id="galTrack">
-      <div class="gal-card" data-card-id="h0"><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
-      <div class="gal-card" data-card-id="h1"><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
-      <div class="gal-card" data-card-id="h2"><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
-      <div class="gal-card" data-card-id="h3"><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
-      <div class="gal-card" data-card-id="h4"><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
-      <div class="gal-card" data-card-id="h5"><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
-      <div class="gal-card" data-card-id="h6"><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
-      <div class="gal-card" data-card-id="h7"><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
-      <div class="gal-card" data-card-id="h8"><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
+      <div class="gal-card" data-card-id="h0"><button class="gal-del" onclick="delStaticGal('h0')">✕</button><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
+      <div class="gal-card" data-card-id="h1"><button class="gal-del" onclick="delStaticGal('h1')">✕</button><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
+      <div class="gal-card" data-card-id="h2"><button class="gal-del" onclick="delStaticGal('h2')">✕</button><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
+      <div class="gal-card" data-card-id="h3"><button class="gal-del" onclick="delStaticGal('h3')">✕</button><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
+      <div class="gal-card" data-card-id="h4"><button class="gal-del" onclick="delStaticGal('h4')">✕</button><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
+      <div class="gal-card" data-card-id="h5"><button class="gal-del" onclick="delStaticGal('h5')">✕</button><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
+      <div class="gal-card" data-card-id="h6"><button class="gal-del" onclick="delStaticGal('h6')">✕</button><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
+      <div class="gal-card" data-card-id="h7"><button class="gal-del" onclick="delStaticGal('h7')">✕</button><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
+      <div class="gal-card" data-card-id="h8"><button class="gal-del" onclick="delStaticGal('h8')">✕</button><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
       <!-- dynamic items injected here -->
       <div class="gal-card gal-add-card" onclick="document.getElementById('galFileInput').click()">
         <div class="gal-add-inner">＋</div>
@@ -451,6 +441,7 @@
   const obs = new IntersectionObserver(es => es.forEach(e => {
     if(e.isIntersecting) e.target.classList.add('on');
   }), {threshold:.12});
+  window.obs = obs;
   document.querySelectorAll('.rv').forEach(el => obs.observe(el));
 
   const gs = document.getElementById('galScroll');
@@ -490,12 +481,19 @@ const PW = '562008';
 const SC = {'募集中':'#5cb85c','開催予定':'#ff9800','終了':'#9e9e9e'};
 const TEXT_IDS = [
   'heroSub','w1','w2','w3',
-  's1t','s1d','s2t','s2d','s3t','s3d','s4t','s4d','s5t','s5d',
   'a1t','a1b','a1c','a2t','a2b','a3t','a3b',
   'st0','st1','st2','st3','st4','st5',
   'gl1','gl2','gl3','gl4','gl5','gl6','gl7','gl8','gl9',
   'ftTitle','ftSub'
 ];
+const DEFAULT_STEPS = [
+  {title:'企画内容を確認する', desc:'誰でも参加できる内容で、ボラスタ規約7条に触れないものにしよう。'},
+  {title:'申請シートを記入する', desc:'企画日・開始〜終了時間・企画名・PA申請の有無・代表者氏名を書いてね。'},
+  {title:'スタッフに直接手渡す', desc:'記入できたら <strong>そ～り</strong> か <strong>マイカブ</strong> に直接渡してね📝'},
+  {title:'内容確認・打ち合わせ', desc:'スタッフが企画内容の確認と、会場の使い方（設営・PA）をレクチャーするよ。'},
+  {title:'掲示板 &amp; LINE でお知らせ', desc:'受付完了！スタッフが掲示板掲載と公式LINEへのお知らせ配信を準備するよ🌟'},
+];
+let stepsData = DEFAULT_STEPS.map(s=>({...s}));
 let adminMode = false;
 
 function toast(m, dur=2500){
@@ -556,6 +554,7 @@ function enterEditMode(){
   syncBPhotoBtn();
   loadEvents();
   setupGalleryDrag();
+  renderSteps();
   toast('✏️ 編集モードになりました。長押しで並び替えできます');
 }
 
@@ -576,9 +575,11 @@ window.saveAll = async () => {
   btn.innerHTML = '<span class="spinner"></span>保存中...';
   setStatus('Firebaseに接続中...');
 
+  collectStepsFromDOM();
   const data={};
   TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.innerHTML;});
   data.tplText = document.getElementById('tplText').innerText;
+  data.steps = stepsData;
 
   const timeout = new Promise((_,reject) =>
     setTimeout(()=>reject(new Error('タイムアウト(10秒)。Firestoreのデータベースが作成されているか確認してください。')), 10000)
@@ -594,6 +595,7 @@ window.saveAll = async () => {
     TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
     document.getElementById('tplText').removeAttribute('contenteditable');
     syncBPhotoBtn();
+    renderSteps();
     setStatus('');
     btn.disabled=false; btn.innerHTML='💾 保存して終了';
     loadEvents();
@@ -624,8 +626,12 @@ async function loadSettings(){
       document.getElementById('bPhoto').src=s.bulletinPhotoUrl;
       document.getElementById('bPhotoWrap').style.display='block';
     }
+    window._deletedGalCards = s.deletedGalCards || [];
+    window._deletedGalCards.forEach(id=>{ document.querySelector(`[data-card-id="${id}"]`)?.remove(); });
+    if(s.steps?.length) stepsData = s.steps;
+    renderSteps();
     syncBPhotoBtn();
-  } catch(_){}
+  } catch(_){ renderSteps(); }
 }
 
 /* ── Events ── */
@@ -760,28 +766,89 @@ window.delGal = async id=>{
   catch(_){ toast('削除エラー'); }
 };
 
+window.delStaticGal = async id=>{
+  if(!confirm('この画像を削除しますか？')) return;
+  document.querySelector(`[data-card-id="${id}"]`)?.remove();
+  window._deletedGalCards = window._deletedGalCards||[];
+  if(!window._deletedGalCards.includes(id)) window._deletedGalCards.push(id);
+  try{ await setDoc(doc(db,'settings','page'),{deletedGalCards:window._deletedGalCards},{merge:true}); toast('🗑️ 削除しました'); }
+  catch(_){ toast('削除エラー'); }
+};
+
+/* ── Steps ── */
+function renderSteps(){
+  const c=document.getElementById('stepsContainer');
+  if(!c) return;
+  c.innerHTML=stepsData.map((s,i)=>`
+    ${i>0?'<div class="step-line"></div>':''}
+    <div class="step-card rv" data-step-idx="${i}">
+      <div class="step-num"><span class="step-s">STEP</span><span class="step-n">${i+1}</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="step-title"${adminMode?' contenteditable="true"':''} data-field="title">${s.title}</div>
+        <div class="step-desc"${adminMode?' contenteditable="true"':''} data-field="desc">${s.desc}</div>
+      </div>
+      <button class="step-del-btn" onclick="delStep(${i})" title="削除">✕</button>
+    </div>`).join('');
+  c.querySelectorAll('.step-card').forEach(el=>window.obs?.observe(el));
+}
+
+function collectStepsFromDOM(){
+  document.querySelectorAll('#stepsContainer .step-card').forEach((card,i)=>{
+    if(!stepsData[i]) return;
+    stepsData[i].title=card.querySelector('[data-field="title"]').innerHTML;
+    stepsData[i].desc =card.querySelector('[data-field="desc"]').innerHTML;
+  });
+}
+
+window.addStep=()=>{
+  collectStepsFromDOM();
+  stepsData.push({title:'新しいステップ',desc:'説明を入力してください。'});
+  renderSteps();
+  toast('ステップを追加しました');
+};
+window.delStep=i=>{
+  if(stepsData.length<=1){toast('最低1つは必要です');return;}
+  if(!confirm('このステップを削除しますか？'))return;
+  collectStepsFromDOM();
+  stepsData.splice(i,1);
+  renderSteps();
+};
+
 /* ══════════════════════════════════════
    長押しドラッグ並び替え
    （参考：task.js setupDragHandle）
    ══════════════════════════════════════ */
 function setupLongPressDrag(el, container, axis, onEnd){
-  let timer=null;
-  const pos=ev=>{ const p=ev.touches?.[0]||ev; return axis==='h'?p.clientX:p.clientY; };
+  let timer=null, startXY=null;
+  const getP =ev=>{ const p=ev.touches?.[0]||ev; return axis==='h'?p.clientX:p.clientY; };
+  const getXY=ev=>{ const p=ev.touches?.[0]||ev; return {x:p.clientX,y:p.clientY}; };
 
   const startPress=e=>{
     if(!adminMode) return;
-    const p0=pos(e);
+    if(timer) return;
+    if(e.target.closest('button')) return;
+    startXY=getXY(e);
+    const p0=getP(e);
     timer=setTimeout(()=>{
       timer=null;
       if(navigator.vibrate) navigator.vibrate(30);
       doDrag(p0);
     },500);
   };
+
+  const maybeCancel=e=>{
+    if(!timer||!startXY) return;
+    const p=getXY(e);
+    if(Math.abs(p.x-startXY.x)>8||Math.abs(p.y-startXY.y)>8){
+      clearTimeout(timer); timer=null;
+    }
+  };
   const cancel=()=>{ clearTimeout(timer); timer=null; };
 
   const doDrag=p0=>{
     const rect=el.getBoundingClientRect();
     const clone=el.cloneNode(true);
+    clone.querySelectorAll('button').forEach(b=>b.remove());
     Object.assign(clone.style,{
       position:'fixed',
       left:rect.left+'px', top:rect.top+'px',
@@ -797,7 +864,7 @@ function setupLongPressDrag(el, container, axis, onEnd){
 
     const move=ev=>{
       ev.preventDefault();
-      const d=pos(ev)-p0;
+      const d=getP(ev)-p0;
       if(axis==='h') clone.style.left=(rect.left+d)+'px';
       else           clone.style.top =(rect.top +d)+'px';
 
@@ -814,7 +881,7 @@ function setupLongPressDrag(el, container, axis, onEnd){
         const sc=axis==='h'?sr.left+sr.width/2:sr.top+sr.height/2;
         if(center<sc){ container.insertBefore(el,s); return; }
       }
-      const last=container.querySelector('.gal-add-card,.board-add-btn');
+      const last=container.querySelector('.gal-add-card,.board-add-btn,.step-add-btn');
       last ? container.insertBefore(el,last) : container.appendChild(el);
     };
 
@@ -836,14 +903,16 @@ function setupLongPressDrag(el, container, axis, onEnd){
     document.addEventListener('touchend',up);
   };
 
-  // pointerdown でタイマー開始
   el.addEventListener('pointerdown', startPress);
   el.addEventListener('pointerup',   cancel);
-  el.addEventListener('pointermove', cancel);
+  el.addEventListener('pointermove', maybeCancel);
   el.addEventListener('pointercancel',cancel);
-  // iOS コピーメニューを完全ブロック
-  el.addEventListener('touchstart', e=>{ if(adminMode){ e.preventDefault(); startPress(e); } }, {passive:false});
-  el.addEventListener('contextmenu', e=>{ if(adminMode) e.preventDefault(); });
+  // passive:true でスクロールを妨げない。ドラッグ開始後は document 側で preventDefault
+  el.addEventListener('touchstart', startPress, {passive:true});
+  el.addEventListener('touchmove',  maybeCancel,{passive:true});
+  el.addEventListener('touchend',   cancel);
+  el.addEventListener('touchcancel',cancel);
+  el.addEventListener('contextmenu',e=>{ if(adminMode) e.preventDefault(); });
 }
 
 function setupEventsDrag(){
