@@ -1,0 +1,731 @@
+/* =============================================
+   ムキムキタスくん - モーダル管理
+   ============================================= */
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+let currentDetailTask = null;
+let currentPriorityTask = null;
+let modalMode = "detail";
+
+// === ミッション ===
+let currentMission = null;
+let missionCompletedToday = false;
+let currentMissionData = null;
+
+/**
+ * ミッションタスク読み込み
+ */
+async function loadMissionTask() {
+    const demoData = {
+        mission: {
+            id: 'demo',
+            title: '今週の限界突破ミッション',
+            description: '毎日10分間の瞑想で心を鍛え、内なる炎を燃やせ',
+            expires_at: getNextSunday()
+        },
+        completed_today: false,
+        today_completions: 42
+    };
+
+    try {
+        const data = await apiCall(`/missions?user_id=${encodeURIComponent(userId)}`);
+        currentMission = data.mission || null;
+        missionCompletedToday = data.completed_today || false;
+        renderMissionTask(data);
+    } catch (e) {
+        currentMission = demoData.mission;
+        missionCompletedToday = demoData.completed_today;
+        renderMissionTask(demoData);
+    }
+}
+
+function getNextSunday() {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const daysUntilSunday = (7 - dayOfWeek) % 7 || 7;
+    const nextSunday = new Date(today);
+    nextSunday.setDate(today.getDate() + daysUntilSunday);
+    nextSunday.setHours(23, 59, 59);
+    return nextSunday.toISOString();
+}
+
+/**
+ * ミッションタスクレンダリング
+ */
+function renderMissionTask(data) {
+    const container = document.getElementById('missionTaskContainer');
+    if (!data.mission) {
+        container.innerHTML = '';
+        currentMissionData = null;
+        return;
+    }
+
+    const mission = data.mission;
+    const completedToday = data.completed_today;
+    const todayCount = data.today_completions || 0;
+    const daysLeft = mission.expires_at ? Math.ceil((new Date(mission.expires_at) - new Date()) / (1000 * 60 * 60 * 24)) : null;
+
+    currentMissionData = { mission, completedToday, todayCount, daysLeft };
+
+    const normalizeNewlines = (s) => (s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    container.innerHTML = `
+        <div class="mission-task-wrapper">
+            <div class="mission-achievement-bubble">🔥 ${todayCount}人が達成</div>
+            <div class="mission-task-card ${completedToday ? 'completed' : ''}" id="missionCard">
+                <div class="mission-completed-stamp">COMPLETED</div>
+                <div class="mission-task-header">
+                    <div class="mission-task-badge"><span>🎯</span><span>MISSION</span></div>
+                </div>
+                <div class="mission-task-title"></div>
+                <div class="mission-task-desc"></div>
+                <div class="mission-task-actions">
+                    ${mission.expires_at ? `<div class="mission-expire">残り${daysLeft > 0 ? daysLeft : 0}日</div>` : ''}
+                </div>
+                <div class="mission-swipe-hint">タップで詳細</div>
+            </div>
+        </div>`;
+
+    const titleEl = container.querySelector('.mission-task-title');
+    const descEl = container.querySelector('.mission-task-desc');
+    if (titleEl) titleEl.textContent = normalizeNewlines(mission.title || 'ミッション');
+    if (descEl) descEl.textContent = normalizeNewlines(mission.description || '');
+
+    const card = document.getElementById('missionCard');
+    if (card) {
+        card.addEventListener('click', () => openMissionDetailModal());
+        card.style.cursor = 'pointer';
+    }
+}
+
+/**
+ * ミッション詳細モーダル
+ */
+function openMissionDetailModal() {
+    if (!currentMissionData) return;
+    const { mission, completedToday, todayCount, daysLeft } = currentMissionData;
+    const modal = document.getElementById('missionDetailModal');
+    const panel = document.getElementById('missionModalPanel');
+
+    document.getElementById('missionModalTitle').textContent = mission.title || 'ミッション';
+    document.getElementById('missionModalDesc').textContent = mission.description || '説明なし';
+    document.getElementById('missionModalCount').textContent = todayCount;
+
+    const expireItem = document.getElementById('missionStatExpire');
+    if (mission.expires_at && daysLeft !== null) {
+        expireItem.style.display = 'block';
+        document.getElementById('missionModalDays').textContent = daysLeft > 0 ? daysLeft : 0;
+    } else {
+        expireItem.style.display = 'none';
+    }
+
+    const completeBtn = document.getElementById('missionModalCompleteBtn');
+    if (completedToday) {
+        panel.classList.add('completed');
+        completeBtn.classList.add('completed');
+        completeBtn.innerHTML = '<span>↩</span><span>未達成に戻す</span>';
+    } else {
+        panel.classList.remove('completed');
+        completeBtn.classList.remove('completed');
+        completeBtn.innerHTML = '<span>✓</span><span>達成する</span>';
+    }
+
+    modal.classList.add('visible');
+}
+
+function closeMissionDetailModal() {
+    document.getElementById('missionDetailModal').classList.remove('visible');
+}
+
+function bindMissionModalUI() {
+    document.getElementById('missionModalBackdrop').onclick = closeMissionDetailModal;
+    document.getElementById('missionModalClose').onclick = closeMissionDetailModal;
+
+    document.getElementById('missionModalCompleteBtn').onclick = async () => {
+        if (!currentMissionData) return;
+        const { mission, completedToday } = currentMissionData;
+        if (completedToday) {
+            await uncompleteMission(mission.id);
+        } else {
+            await completeMission(mission.id);
+        }
+        closeMissionDetailModal();
+    };
+
+    document.getElementById('missionModalTimerBtn').onclick = () => {
+        window.open('https://liff.line.me/2008372898-OgpQWq4L', '_blank');
+    };
+}
+
+async function completeMission(missionId) {
+    try {
+        const res = await apiCall('/missions/complete', 'POST', { user_id: userId, mission_id: missionId });
+        missionCompletedToday = true;
+        await loadMissionTask();
+    } catch (e) {
+        missionCompletedToday = true;
+        if (currentMissionData) currentMissionData.completedToday = true;
+        const card = document.getElementById('missionCard');
+        if (card) card.classList.add('completed');
+    }
+}
+
+async function uncompleteMission(missionId) {
+    try {
+        const res = await apiCall('/missions/uncomplete', 'POST', { user_id: userId, mission_id: missionId });
+        missionCompletedToday = false;
+        await loadMissionTask();
+    } catch (e) {
+        missionCompletedToday = false;
+        if (currentMissionData) currentMissionData.completedToday = false;
+        const card = document.getElementById('missionCard');
+        if (card) card.classList.remove('completed');
+    }
+}
+
+// === タスク詳細モーダル ===
+let currentTaskDetailData = null;
+
+function openTaskDetailModal(t, isCompleted) {
+    currentTaskDetailData = t;
+    const modal = document.getElementById('taskDetailModal');
+    if (!modal) return; // taskDetailModal はインライン編集に移行済み
+    const viewContent = document.getElementById('taskViewContent');
+    const editContent = document.getElementById('taskEditContent');
+
+    viewContent.classList.remove('hidden');
+    editContent.classList.remove('active');
+
+    const taskName = t.task_name || t.title || '(無題)';
+    document.getElementById('taskModalTitle').textContent = taskName;
+
+    // 優先度バッジ
+    const priority = t.priority_level || 'normal';
+    const priorityEl = document.getElementById('taskModalPriority');
+    if (priority === 'critical') {
+        priorityEl.textContent = '🔥 最重要';
+        priorityEl.className = 'task-modal-priority priority-critical-label';
+        priorityEl.style.display = '';
+    } else if (priority === 'high') {
+        priorityEl.textContent = '⚡ 重要';
+        priorityEl.className = 'task-modal-priority priority-high-label';
+        priorityEl.style.display = '';
+    } else {
+        priorityEl.style.display = 'none';
+    }
+
+    // 情報セクション
+    const infoEl = document.getElementById('taskModalInfo');
+    let infoHtml = '';
+    const typeLabel = t.task_type === 'mission' ? '🎯 クエスト' : '✅ タスク';
+    infoHtml += `<div class="task-info-item"><span class="task-info-label">タイプ</span><span class="task-info-value">${typeLabel}</span></div>`;
+    if (t.reason) {
+        infoHtml += `<div class="task-info-item"><span class="task-info-label">💡 理由</span><span class="task-info-value">${t.reason}</span></div>`;
+    }
+    if (t.remind_at) {
+        infoHtml += `<div class="task-info-item"><span class="task-info-label">🔔 リマインド</span><span class="task-info-value">${formatRemindLabel(t.remind_at)}</span></div>`;
+    }
+    if (isCompleted) {
+        infoHtml += `<div class="task-info-item"><span class="task-info-label">✅ ステータス</span><span class="task-info-value">完了済み</span></div>`;
+    }
+    infoEl.innerHTML = infoHtml;
+
+    modal.classList.add('visible');
+}
+
+function bindTaskDetailModalUI() {
+    // タスク詳細はカードインライン編集に移行済み
+}
+
+// === 詳細モーダル ===
+function bindModalUI() {
+    const modal = document.getElementById('detailModal');
+    const close = () => modal.classList.remove("visible");
+
+    document.getElementById('detailBackdrop').onclick = close;
+    document.getElementById('detailCloseBtn').onclick = close;
+    document.getElementById('detailCancelBtn').onclick = close;
+
+    // 表示→編集モードへ切り替え
+    document.getElementById('detailEditModeBtn').onclick = () => {
+        if (!currentDetailTask) return;
+        const t = currentDetailTask;
+        document.getElementById('detailViewGroup').style.display = 'none';
+        document.getElementById('detailEditGroup').style.display = '';
+        document.getElementById('detailEditName').value = t.task_name || t.title || '';
+        document.getElementById('detailEditReason').value = t.reason || '';
+        const cur = t.priority_level === 'critical' ? 'critical' : (t.task_type === 'mission' ? 'mission' : 'default');
+        document.querySelectorAll('.detail-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === cur));
+        document.getElementById('detailEditReasonGroup').style.display = cur === 'mission' ? '' : 'none';
+    };
+
+    // タイプ切り替え
+    document.getElementById('detailTypeSwitcher').addEventListener('click', e => {
+        const btn = e.target.closest('.detail-type-btn');
+        if (!btn) return;
+        document.querySelectorAll('.detail-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('detailEditReasonGroup').style.display = btn.dataset.type === 'mission' ? '' : 'none';
+    });
+
+    // 編集キャンセル（表示モードへ戻る）
+    document.getElementById('detailEditCancelBtn').onclick = () => {
+        document.getElementById('detailEditGroup').style.display = 'none';
+        document.getElementById('detailViewGroup').style.display = '';
+    };
+
+    // 保存
+    document.getElementById('detailSaveBtn').onclick = async () => {
+        if (!currentDetailTask) return;
+        const t = currentDetailTask;
+        const newName = document.getElementById('detailEditName').value.trim();
+        const selectedType = document.querySelector('.detail-type-btn.active')?.dataset.type || 'default';
+        const newReason = document.getElementById('detailEditReason').value.trim() || null;
+        const promises = [];
+        if (newName && newName !== (t.task_name || t.title || ''))
+            promises.push(action('rename', t.id, { task_name: newName }));
+        const newPL = selectedType === 'critical' ? 'critical' : 'normal';
+        const newTT = selectedType === 'critical' ? (t.task_type || 'default') : selectedType;
+        if (newPL !== (t.priority_level || 'normal'))
+            promises.push(action('set_priority', t.id, { priority: t.priority || 0, priority_level: newPL }));
+        if (newTT !== (t.task_type || 'default') || newReason !== (t.reason || null))
+            promises.push(action('update_type', t.id, { task_type: newTT, reason: newReason }));
+        if (promises.length > 0) await Promise.all(promises);
+        close();
+    };
+
+    // 通知保存
+    document.getElementById('remindSaveBtn').onclick = async () => {
+        if (!currentDetailTask) return;
+        const inputVal = document.getElementById('inputRemindAt').value;
+        await action("remind_custom", currentDetailTask.id, {
+            remind_at: inputVal ? new Date(inputVal).toISOString() : null,
+            kind: inputVal ? "custom_datetime" : "clear"
+        });
+        close();
+    };
+    document.getElementById('remindCancelBtn').onclick = close;
+
+    document.getElementById('inputRemindAt').addEventListener('change', e => {
+        document.getElementById('valRemindAt').textContent = e.target.value
+            ? formatRemindLabel(new Date(e.target.value).toISOString())
+            : '';
+    });
+}
+
+function openDetail(t) {
+    modalMode = "detail";
+    currentDetailTask = t;
+    document.getElementById('detailViewGroup').style.display = '';
+    document.getElementById('detailEditGroup').style.display = 'none';
+    document.getElementById('remindGroup').style.display = 'none';
+    document.getElementById('modalTitle').textContent = "📋 タスク詳細";
+    document.getElementById('detailTaskTitle').textContent = t.task_name || t.title || "(無題)";
+
+    // タイプバッジ
+    const typeDiv = document.getElementById('detailViewType');
+    if (typeDiv) {
+        const pl = t.priority_level, tt = t.task_type;
+        if (pl === 'critical')
+            typeDiv.innerHTML = '<span class="task-modal-priority priority-critical-label">⚡ 今日中</span>';
+        else if (tt === 'mission')
+            typeDiv.innerHTML = '<span class="task-modal-priority priority-mission-label">🎯 クエスト</span>';
+        else
+            typeDiv.innerHTML = '<span class="task-modal-priority priority-normal-label">✅ ノーマル</span>';
+    }
+
+    // なぜやるか
+    const reasonDiv = document.getElementById('detailViewReason');
+    if (reasonDiv) {
+        if (t.reason) {
+            reasonDiv.style.display = '';
+            reasonDiv.innerHTML = '<div class="detail-reason-label">💡 なぜやるか</div>' +
+                '<div class="detail-reason-body">' + escapeHtml(t.reason) + '</div>';
+        } else {
+            reasonDiv.style.display = 'none';
+        }
+    }
+    document.getElementById('detailModal').classList.add("visible");
+}
+
+function openRemind(t) {
+    modalMode = "remind";
+    currentDetailTask = t;
+    document.getElementById('modalTitle').textContent = "🔔 通知設定";
+    document.getElementById('detailTaskTitle').textContent = t.task_name || t.title || "(無題)";
+    document.getElementById('detailViewGroup').style.display = 'none';
+    document.getElementById('detailEditGroup').style.display = 'none';
+    document.getElementById('remindGroup').style.display = '';
+
+    const input = document.getElementById('inputRemindAt');
+    const val = document.getElementById('valRemindAt');
+    if (t.remind_at) {
+        input.value = toLocalDatetimeValue(t.remind_at);
+        val.textContent = formatRemindLabel(t.remind_at);
+    } else {
+        input.value = '';
+        val.textContent = '';
+    }
+    document.getElementById('detailModal').classList.add("visible");
+}
+
+// === 優先順位モーダル ===
+function bindPriorityModalUI() {
+    const modal = document.getElementById('priorityModal');
+    const close = () => { modal.classList.remove('visible'); currentPriorityTask = null; };
+
+    document.getElementById('priorityBackdrop').onclick = close;
+    document.getElementById('priorityCloseBtn').onclick = close;
+
+    document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.addEventListener('click', async () => {
+            if (!currentPriorityTask) return;
+            const priority = opt.dataset.priority;
+            await action("set_priority", currentPriorityTask.id, { priority_level: priority });
+            close();
+        });
+    });
+}
+
+function openPriorityModal(t) {
+    currentPriorityTask = t;
+    document.getElementById('priorityTaskTitle').textContent = t.task_name || t.title || "(無題)";
+    document.getElementById('priorityModal').classList.add('visible');
+}
+
+// === アップグレードモーダル ===
+function bindUpgradeModalUI() {
+    document.getElementById('upgradeCloseBtn').onclick = hideUpgradeModal;
+    document.getElementById('upgradeBackdrop').onclick = hideUpgradeModal;
+    renderPlanOptions();
+    updateCurrentPlanInfo();
+
+    // 「プランを詳しく見る」ボタン
+    const viewPlansBtn = document.getElementById('viewPlansBtn');
+    if (viewPlansBtn) {
+        viewPlansBtn.onclick = () => {
+            if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+                liff.openWindow({ url: PLAN_PAGE_URL, external: true });
+            } else {
+                window.open(PLAN_PAGE_URL, '_blank');
+            }
+        };
+    }
+}
+
+function renderPlanOptions() {
+    const container = document.querySelector('.plan-options');
+    if (!container || !planData) return;
+
+    const purchasablePlans = planData.filter(p => p.plan_code !== 'free');
+    container.innerHTML = purchasablePlans.map(p => {
+        const isMax = p.plan_code === 'max';
+        const features = [];
+        features.push(`TODO枠${p.task_limit}個`);
+        if (p.can_status) features.push('ステータス');
+        if (p.can_journal) features.push('ジャーナル');
+
+        return `
+            <div class="plan-info-card" style="padding:16px;border:2px solid ${isMax ? 'var(--accent)' : 'var(--border)'};border-radius:12px;background:${isMax ? 'linear-gradient(135deg, #fff9e6, #fff)' : 'white'};text-align:left;">
+                <div style="font-weight:700;color:${isMax ? 'var(--accent)' : 'var(--primary)'};">${p.display_name} - ¥${p.price_jpy}/月${isMax ? ' ⭐おすすめ' : ''}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${features.join(' + ')}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateCurrentPlanInfo() {
+    const infoEl = document.getElementById('currentPlanInfo');
+    if (!currentEntitlements || !infoEl) return;
+
+    const currentPlan = planData?.find(p => p.plan_code === currentEntitlements.plan_code);
+    const planName = currentPlan?.display_name || '無料プラン';
+    infoEl.innerHTML = `現在のプラン: <strong>${planName}</strong> (TODO枠: ${currentEntitlements.task_limit}個)`;
+}
+
+function showUpgradeModal(featureName) {
+    document.getElementById('upgradeMessage').textContent =
+        `${featureName}は上位プランで利用できます。詳しくはプランページをご覧ください。`;
+    document.getElementById('upgradeModal').style.display = 'flex';
+}
+
+function hideUpgradeModal() {
+    document.getElementById('upgradeModal').style.display = 'none';
+}
+
+// === ユーティリティ ===
+function formatRemindLabel(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return `🔔${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function toLocalDatetimeValue(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+
+// === タスク追加モーダル（Phase2） ===
+function showAddTaskModal() {
+    const modal = document.getElementById('addTaskModal');
+    if (!modal) return;
+    // デフォルト状態にリセット（クエスト選択中）
+    modal.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+    const defaultBtn = modal.querySelector('.segment-btn[data-type="mission"]');
+    if (defaultBtn) defaultBtn.classList.add('active');
+    const questFields = document.getElementById('questFields');
+    if (questFields) questFields.style.display = 'block';
+    const urgentFlag = document.getElementById('addTaskUrgentFlag');
+    if (urgentFlag) urgentFlag.checked = false;
+    modal.style.display = 'flex';
+    const nameInput = document.getElementById('addTaskNameInput');
+    if (nameInput) setTimeout(() => nameInput.focus(), 100);
+}
+
+function hideAddTaskModal() {
+    const modal = document.getElementById('addTaskModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function bindAddTaskModalUI() {
+    const modal = document.getElementById('addTaskModal');
+    if (!modal) return;
+    const backdrop = document.getElementById('addTaskBackdrop');
+    const closeBtn = document.getElementById('addTaskCloseBtn');
+    if (backdrop) backdrop.onclick = hideAddTaskModal;
+    if (closeBtn) closeBtn.onclick = hideAddTaskModal;
+
+    // セグメントコントロール（addTaskModal内のみに限定）
+    modal.querySelectorAll('.segment-btn').forEach(btn => {
+        btn.onclick = () => {
+            modal.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const type = btn.dataset.type;
+            const questFields = document.getElementById('questFields');
+            if (questFields) questFields.style.display = type === 'mission' ? 'block' : 'none';
+        };
+    });
+
+    const submitBtn = document.getElementById('addTaskSubmitBtn');
+    if (submitBtn) submitBtn.onclick = async () => {
+        const titleEl = document.getElementById('addTaskNameInput');
+        const title = titleEl ? titleEl.value.trim() : '';
+        if (!title) return;
+        if (!checkTaskLimit()) return;
+        const type = modal.querySelector('.segment-btn.active')?.dataset.type || 'default';
+        const reasonEl = document.getElementById('addTaskReasonInput');
+        const reason = type === 'mission' ? (reasonEl ? reasonEl.value.trim() || null : null) : null;
+        const targetDateEl = document.getElementById('addTaskTargetDateInput');
+        const target_date = type === 'mission' ? (targetDateEl ? targetDateEl.value || null : null) : null;
+        const urgentFlag = document.getElementById('addTaskUrgentFlag');
+        const urgent = urgentFlag ? urgentFlag.checked : false;
+        // urgent_flag は priority_level: 'critical' にマッピング
+        const priority_level = urgent ? 'critical' : 'normal';
+        await action('create', null, { task_name: title, task_type: type, reason, target_date, priority_level });
+        if (titleEl) titleEl.value = '';
+        if (reasonEl) reasonEl.value = '';
+        if (targetDateEl) targetDateEl.value = '';
+        if (urgentFlag) urgentFlag.checked = false;
+        hideAddTaskModal();
+    };
+}
+
+// === 習慣設定モーダル（Phase2） ===
+let selectedHabitIds = new Set();
+let selectedHabitByCategory = {}; // { '体力': { habit_id, habit_name, category, icon }, ... }
+let _currentCatModal = null;
+
+async function showHabitSettingsModal() {
+    const modal = document.getElementById('habitSettingsModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    // 現在の習慣設定を selectedHabitByCategory に反映
+    selectedHabitByCategory = {};
+    if (Array.isArray(currentHabits)) {
+        for (const h of currentHabits) {
+            if (h.category) {
+                selectedHabitByCategory[h.category] = {
+                    habit_id: h.habit_id,
+                    habit_name: h.habit_name,
+                    category: h.category,
+                    icon: h.icon || ''
+                };
+            }
+        }
+    }
+    const presets = await loadHabitPresets();
+    renderHabitPresetsGrid(presets);
+}
+
+function renderHabitPresetsGrid(presets) {
+    const grid = document.getElementById('presetGrid');
+    if (!grid) return;
+
+    const byCategory = {};
+    for (const p of presets) {
+        if (!byCategory[p.category]) byCategory[p.category] = [];
+        byCategory[p.category].push(p);
+    }
+    window._presetsByCategory = byCategory;
+
+    const CATEGORY_ICONS = { '体力': '💪', '知力': '📚', '精神力': '🧘', '節制': '🚫', '生産性': '💻', '活力': '🌅' };
+
+    grid.innerHTML = HABIT_CATEGORIES.map(cat => {
+        const icon = CATEGORY_ICONS[cat] || '✨';
+        const sel = selectedHabitByCategory[cat];
+        const selLabel = sel ? `${sel.icon || ''} ${sel.habit_name}` : '未設定';
+        return `<div class="preset-cat-row" data-cat="${cat}">
+            <div class="preset-cat-left">
+                <span class="preset-cat-icon">${icon}</span>
+                <span class="preset-cat-name">${cat}</span>
+            </div>
+            <div class="preset-cat-right">
+                <span class="preset-cat-selected" data-cat="${cat}">${selLabel}</span>
+                <span style="color:var(--text-muted);font-size:16px;">›</span>
+            </div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.preset-cat-row').forEach(row => {
+        row.onclick = () => openHabitCategoryModal(row.dataset.cat, byCategory[row.dataset.cat] || []);
+    });
+}
+
+function openHabitCategoryModal(cat, items) {
+    _currentCatModal = cat;
+    const modal = document.getElementById('habitCategoryModal');
+    if (!modal) return;
+
+    const CATEGORY_ICONS = { '体力': '💪', '知力': '📚', '精神力': '🧘', '節制': '🚫', '生産性': '💻', '活力': '🌅' };
+    document.getElementById('habitCategoryModalTitle').textContent = `${CATEGORY_ICONS[cat] || ''} ${cat}の習慣を選ぶ`;
+
+    const current = selectedHabitByCategory[cat];
+    const listEl = document.getElementById('habitCategoryList');
+    listEl.innerHTML = items.map(p => `
+        <div class="preset-cat-item ${current?.habit_id === p.habit_id ? 'selected' : ''}" data-id="${p.habit_id}" data-name="${p.habit_name}" data-icon="${p.icon || ''}">
+            <span style="font-size:20px;">${p.icon || '●'}</span>
+            <span style="flex:1;font-size:14px;font-weight:500;">${p.habit_name}</span>
+            <span class="preset-cat-check" style="color:var(--energy-orange);font-size:18px;">${current?.habit_id === p.habit_id ? '✓' : ''}</span>
+        </div>
+    `).join('');
+
+    listEl.querySelectorAll('.preset-cat-item').forEach(item => {
+        item.onclick = () => {
+            listEl.querySelectorAll('.preset-cat-item').forEach(i => {
+                i.classList.remove('selected');
+                i.querySelector('.preset-cat-check').textContent = '';
+            });
+            item.classList.add('selected');
+            item.querySelector('.preset-cat-check').textContent = '✓';
+            document.getElementById('habitCategoryCustomInput').value = '';
+        };
+    });
+
+    const customInput = document.getElementById('habitCategoryCustomInput');
+    customInput.value = (current && current._custom) ? current.habit_name : '';
+    if (customInput.value) {
+        listEl.querySelectorAll('.preset-cat-item').forEach(i => {
+            i.classList.remove('selected');
+            i.querySelector('.preset-cat-check').textContent = '';
+        });
+    }
+
+    modal.style.display = 'flex';
+}
+
+function bindHabitCategoryModalUI() {
+    const modal = document.getElementById('habitCategoryModal');
+    if (!modal) return;
+
+    document.getElementById('habitCategoryBackdrop').onclick = () => modal.style.display = 'none';
+    document.getElementById('habitCategoryCloseBtn').onclick = () => modal.style.display = 'none';
+
+    document.getElementById('habitCategoryDoneBtn').onclick = () => {
+        const cat = _currentCatModal;
+        if (!cat) { modal.style.display = 'none'; return; }
+
+        const customVal = document.getElementById('habitCategoryCustomInput').value.trim();
+        const selectedItem = document.querySelector('#habitCategoryList .preset-cat-item.selected');
+
+        if (customVal) {
+            const CATEGORY_ICONS = { '体力': '💪', '知力': '📚', '精神力': '🧘', '節制': '🚫', '生産性': '💻', '活力': '🌅' };
+            // 既存のカスタムIDを引き継ぐ（名前だけ変えてもIDは維持 → 過去記録を保持）
+            const existingHabit = selectedHabitByCategory[cat];
+            const existingId = existingHabit?.habit_id;
+            const newId = (existingId && existingId.startsWith(`custom_${cat}_`))
+                ? existingId
+                : `custom_${cat}_${customVal}`.replace(/\s+/g,'_').toLowerCase();
+            selectedHabitByCategory[cat] = {
+                habit_id: newId,
+                habit_name: customVal,
+                category: cat,
+                icon: CATEGORY_ICONS[cat] || '✨',
+                _custom: true
+            };
+        } else if (selectedItem) {
+            selectedHabitByCategory[cat] = {
+                habit_id: selectedItem.dataset.id,
+                habit_name: selectedItem.dataset.name,
+                category: cat,
+                icon: selectedItem.dataset.icon
+            };
+        } else {
+            delete selectedHabitByCategory[cat];
+        }
+
+        // カテゴリ行の表示を更新
+        const sel = selectedHabitByCategory[cat];
+        const label = document.querySelector(`.preset-cat-selected[data-cat="${cat}"]`);
+        if (label) label.textContent = sel ? `${sel.icon || ''} ${sel.habit_name}` : '未設定';
+
+        modal.style.display = 'none';
+    };
+}
+
+function bindHabitSettingsModalUI() {
+    const modal = document.getElementById('habitSettingsModal');
+    if (!modal) return;
+    const backdrop = document.getElementById('habitSettingsBackdrop');
+    const closeBtn = document.getElementById('habitSettingsCloseBtn');
+    if (backdrop) backdrop.onclick = () => modal.style.display = 'none';
+    if (closeBtn) closeBtn.onclick = () => modal.style.display = 'none';
+    const saveBtn = document.getElementById('habitSettingsSaveBtn');
+    if (saveBtn) saveBtn.onclick = async () => {
+        const selected = Object.values(selectedHabitByCategory);
+        if (selected.length === 0) { alert('習慣を1つ以上設定してください'); return; }
+        await saveHabitSettings(selected);
+        const modal = document.getElementById('habitSettingsModal');
+        if (modal) modal.style.display = 'none';
+    };
+    bindHabitCategoryModalUI();
+}
+
+// === タスクタイプ切替ヘルパー ===
+function setEditTaskType(type) {
+    const mBtn = document.getElementById('editTypeMission');
+    const aBtn = document.getElementById('editTypeAppointment');
+    const reasonGroup = document.getElementById('editReasonGroup');
+    if (!mBtn || !aBtn) return;
+
+    if (type === 'mission') {
+        mBtn.classList.add('active');
+        mBtn.style.cssText = 'flex:1;padding:10px;border:2px solid var(--primary);border-radius:10px;background:var(--primary);color:white;font-weight:700;cursor:pointer;font-size:13px;';
+        aBtn.classList.remove('active');
+        aBtn.style.cssText = 'flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text-main);font-weight:600;cursor:pointer;font-size:13px;';
+        if (reasonGroup) reasonGroup.style.display = 'block';
+    } else {
+        aBtn.classList.add('active');
+        aBtn.style.cssText = 'flex:1;padding:10px;border:2px solid var(--primary);border-radius:10px;background:var(--primary);color:white;font-weight:700;cursor:pointer;font-size:13px;';
+        mBtn.classList.remove('active');
+        mBtn.style.cssText = 'flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text-main);font-weight:600;cursor:pointer;font-size:13px;';
+        if (reasonGroup) reasonGroup.style.display = 'none';
+    }
+}
