@@ -1,7 +1,7 @@
 import { initializeApp, getApps }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc,
-         doc, getDoc, setDoc, serverTimestamp }
+         doc, getDoc, setDoc, updateDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const cfg = {
@@ -81,6 +81,9 @@ export async function addGalleryItem(url,label){
 }
 export async function deleteGalleryItem(id){
   await deleteDoc(doc(db,'gallery',id));
+}
+export async function updateGalleryItem(id, updates){
+  await updateDoc(doc(db,'gallery',id), updates);
 }
 
 /* ── Assets (stamps) ── */

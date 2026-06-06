@@ -312,18 +312,26 @@ function renderGallery(sec){
   const deleted=new Set(d.deletedIds||[]);
   const staticCards=(d.staticItems||[])
     .filter(i=>!deleted.has(i.id))
-    .map(i=>`
+    .map(i=>{
+      const imgEl=`<img src="${esc(i.src)}" alt="">`;
+      const linked=i.link?`<a href="${esc(i.link)}" target="_blank" rel="noopener">${imgEl}</a>`:imgEl;
+      return `
       <div class="gal-card" data-card-id="${i.id}">
         <button class="gal-del" onclick="window._builder?.delStaticGal('${sec.id}','${i.id}')">✕</button>
-        <img src="${esc(i.src)}" alt="">
+        <button class="gal-link-btn${i.link?' has-link':''}" onclick="window._builder?.editGalLink('${sec.id}','${i.id}',false)">🔗</button>
+        ${linked}
         <div class="gal-label">${i.label}</div>
-      </div>`).join('');
-  const dynCards=galleryCache.map(g=>`
+      </div>`;}).join('');
+  const dynCards=galleryCache.map(g=>{
+      const imgEl=`<img src="${esc(g.url)}" alt="${esc(g.label||'')}">`;
+      const linked=g.link?`<a href="${esc(g.link)}" target="_blank" rel="noopener">${imgEl}</a>`:imgEl;
+      return `
       <div class="gal-card" data-gal-id="${g.id}">
         <button class="gal-del" onclick="window._builder?.delDynGal('${g.id}')">✕</button>
-        <img src="${esc(g.url)}" alt="${esc(g.label||'')}">
+        <button class="gal-link-btn${g.link?' has-link':''}" onclick="window._builder?.editGalLink('${sec.id}','${g.id}',true)">🔗</button>
+        ${linked}
         <div class="gal-label">${esc(g.label||'')}</div>
-      </div>`).join('');
+      </div>`;}).join('');
   return `
 <div class="gal-bg" style="background:${sec.bg.value}">
   <div class="gal-head rv">

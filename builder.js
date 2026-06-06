@@ -1,6 +1,7 @@
 import { nanoid, compress, loadPage, savePage,
          loadEventsData, addEvent, deleteEvent,
-         loadGalleryData, addGalleryItem, deleteGalleryItem }
+         loadGalleryData, addGalleryItem, deleteGalleryItem, updateGalleryItem,
+         loadAssets }
   from './firebase.js';
 import { DEFAULT_PAGE, SECTION_TEMPLATES,
          pageState, setPageState,
@@ -457,20 +458,7 @@ window._builder._submitEv = async () => {
    ══════════════════════════════════════════ */
 window._builder.triggerImageEdit = (secId, field) => {
   if(!adminMode) return;
-  const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = 'image/*';
-  inp.onchange = async () => {
-    const file = inp.files[0]; if(!file) return;
-    try{
-      showToast('アップロード中…');
-      const b64 = await compress(file);
-      const sec = pageState.sections.find(s=>s.id===secId);
-      if(sec) setNestedField(sec.data, field, b64);
-      rerenderSection(secId);
-      showToast('画像を更新しました ✅');
-    }catch(e){ showToast('エラー: '+e.message); }
-  };
-  inp.click();
+  showImagePicker(secId, field);
 };
 
 /* ══════════════════════════════════════════
@@ -658,6 +646,104 @@ function setStatus(msg){
 }
 
 /* ══════════════════════════════════════════
+   画像ピッカー（アセット選択 + アップロード）
+   ══════════════════════════════════════════ */
+async function showImagePicker(secId, field){
+  document.getElementById('imgPickerDlg')?.remove();
+  const dlg = document.createElement('div');
+  dlg.id = 'imgPickerDlg';
+  dlg.className = 'modal-backdrop';
+  dlg.innerHTML = `
+    <div class="modal-box img-picker-box">
+      <div class="modal-title">🖼 画像を選択</div>
+      <button class="imgpk-upload-btn" id="imgpkUploadBtn">📷 デバイスから選ぶ</button>
+      <div class="imgpk-assets-title">ライブラリから選ぶ</div>
+      <div class="imgpk-grid" id="imgpkGrid"><div class="imgpk-loading">読み込み中…</div></div>
+      <div style="margin-top:14px">
+        <button class="btn-cancel" onclick="document.getElementById('imgPickerDlg').remove()">閉じる</button>
+      </div>
+    </div>`;
+  document.body.appendChild(dlg);
+
+  /* アップロードボタン */
+  document.getElementById('imgpkUploadBtn').addEventListener('click', ()=>{
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = async () => {
+      const file = inp.files[0]; if(!file) return;
+      dlg.remove();
+      try{
+        showToast('アップロード中…');
+        const b64 = await compress(file);
+        const sec = pageState.sections.find(s=>s.id===secId);
+        if(sec) setNestedField(sec.data, field, b64);
+        rerenderSection(secId);
+        showToast('画像を更新しました ✅');
+      }catch(e){ showToast('エラー: '+e.message); }
+    };
+    inp.click();
+  });
+
+  /* アセット一覧ロード */
+  try{
+    const assets = await loadAssets();
+    const grid = document.getElementById('imgpkGrid');
+    if(!grid) return;
+    if(!assets.length){
+      grid.innerHTML = '<div class="imgpk-loading">アセットがまだありません</div>';
+      return;
+    }
+    grid.innerHTML = assets.map(a=>`
+      <button class="imgpk-thumb" data-url="${a.url}" title="${a.name||''}">
+        <img src="${a.url}" alt="${a.name||''}">
+      </button>`).join('');
+    grid.querySelectorAll('.imgpk-thumb').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const url = btn.dataset.url;
+        dlg.remove();
+        const sec = pageState.sections.find(s=>s.id===secId);
+        if(sec) setNestedField(sec.data, field, url);
+        rerenderSection(secId);
+        showToast('画像を更新しました ✅');
+      });
+    });
+  }catch(e){
+    const grid = document.getElementById('imgpkGrid');
+    if(grid) grid.innerHTML = '<div class="imgpk-loading">読み込みエラー</div>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   ギャラリーアイテムのリンク編集
+   ══════════════════════════════════════════ */
+window._builder.editGalLink = (secId, itemId, isDynamic) => {
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  let current = '';
+  if(isDynamic){
+    const item = galleryCache.find(g=>g.id===itemId);
+    current = item?.link || '';
+  } else {
+    const item = (sec.data.staticItems||[]).find(i=>i.id===itemId);
+    current = item?.link || '';
+  }
+  showLinkDialog(current, async url => {
+    if(isDynamic){
+      try{
+        await updateGalleryItem(itemId, {link: url||null});
+        const item = galleryCache.find(g=>g.id===itemId);
+        if(item) item.link = url||null;
+      }catch(e){ showToast('保存失敗: '+e.message); return; }
+    } else {
+      const item = (sec.data.staticItems||[]).find(i=>i.id===itemId);
+      if(item) item.link = url||null;
+    }
+    rerenderSection(secId);
+    showToast(url ? 'リンクを設定しました 🔗' : 'リンクを削除しました');
+  });
+};
+
+/* ══════════════════════════════════════════
    背景ピッカー
    ══════════════════════════════════════════ */
 window._builder.openBgPicker = (secId, anchorBtn) => {
@@ -679,7 +765,8 @@ window._builder.openBgPicker = (secId, anchorBtn) => {
           <span class="bgp-label">${p.label}</span>
         </button>`).join('')}
     </div>
-    <button class="bgp-img-btn" onclick="window._builder.triggerBgImage('${secId}')">📷 画像をアップロード</button>`;
+    <button class="bgp-img-btn" onclick="window._builder.triggerBgImage('${secId}')">📷 画像をアップロード</button>
+    <button class="bgp-reset-btn" onclick="window._builder.resetBg('${secId}')">↩ デフォルトに戻す</button>`;
 
   document.body.appendChild(picker);
 
@@ -711,6 +798,16 @@ window._builder.applyBgPreset = (secId, idx) => {
   sec.bg = {type:p.type, value:p.value};
   document.getElementById('bgPicker')?.remove();
   rerenderSection(secId);
+};
+
+window._builder.resetBg = (secId) => {
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  const def = DEFAULT_PAGE.sections.find(d=>d.id===secId);
+  sec.bg = def?.bg ? JSON.parse(JSON.stringify(def.bg)) : {type:'color', value:''};
+  document.getElementById('bgPicker')?.remove();
+  rerenderSection(secId);
+  showToast('背景をデフォルトに戻しました');
 };
 
 window._builder.triggerBgImage = (secId) => {

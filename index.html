@@ -255,6 +255,22 @@
     .link-edit-btn{position:absolute;bottom:6px;right:6px;background:rgba(255,255,255,.9);border:none;border-radius:99px;padding:4px 10px;font-size:.75rem;font-weight:bold;color:var(--green-dk);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);display:none;z-index:10}
     body.edit-mode .link-edit-btn{display:inline-block}
     .link-edit-btn:hover{background:white;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+    /* ── ギャラリーリンクボタン ── */
+    .gal-link-btn{position:absolute;bottom:28px;right:4px;background:rgba(255,255,255,.88);border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);display:none;z-index:10;line-height:26px;text-align:center}
+    .gal-link-btn.has-link{background:var(--green);color:white}
+    body.edit-mode .gal-link-btn{display:block}
+    /* ── BGピッカーリセットボタン ── */
+    .bgp-reset-btn{width:100%;margin-top:6px;background:none;border:1px solid #e0e0e0;border-radius:10px;padding:8px;font-family:inherit;font-size:.82rem;color:var(--text-s);cursor:pointer}
+    .bgp-reset-btn:hover{background:#f5f5f5}
+    /* ── 画像ピッカー ── */
+    .img-picker-box{max-height:80vh;overflow-y:auto}
+    .imgpk-upload-btn{width:100%;background:linear-gradient(135deg,#66bb6a,#388e3c);color:white;border:none;border-radius:10px;padding:11px;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;margin-bottom:14px}
+    .imgpk-assets-title{font-size:.82rem;font-weight:bold;color:var(--text-s);margin-bottom:8px}
+    .imgpk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .imgpk-thumb{border:2px solid #e0e0e0;border-radius:10px;padding:0;cursor:pointer;overflow:hidden;aspect-ratio:1;transition:border-color .15s}
+    .imgpk-thumb:hover{border-color:var(--green)}
+    .imgpk-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .imgpk-loading{grid-column:1/-1;text-align:center;color:var(--text-s);font-size:.88rem;padding:20px}
 
     @media(max-width:380px){.ht-r2{display:none}.gal-card{width:180px}.gal-card img{height:108px}}
   </style>
