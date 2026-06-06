@@ -151,29 +151,47 @@
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 
     /* ── Drag ── */
-    body.edit-mode .ev-row,
-    body.edit-mode .gal-card:not(.gal-add-card){-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:grab}
     .drag-ghost{opacity:.2!important;transition:none!important}
     .drag-clone{position:fixed;pointer-events:none;z-index:9999;opacity:.93;box-shadow:0 12px 30px rgba(0,0,0,.4);border-radius:var(--r);transform:rotate(1.5deg);transition:none}
     .dragging-orig{opacity:.2!important;transition:none!important}
+    body.edit-mode .ev-row,
+    body.edit-mode .gal-card:not(.gal-add-card){cursor:grab}
+
+    /* ── iOS 選択防止（編集モード中の長押しドラッグで選択UIが出ないように）── */
+    body.edit-mode{
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+    }
+    body.edit-mode [contenteditable="true"],
+    body.edit-mode input,
+    body.edit-mode textarea,
+    body.edit-mode select{
+      -webkit-user-select:text;
+      user-select:text;
+      -webkit-touch-callout:default;
+    }
+
+    /* ═════════════════════════════════════════
+       FLOAT MENU
+       ═════════════════════════════════════════ */
+    .fmenu-wrap{position:fixed;bottom:24px;right:20px;z-index:900;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+    .fmenu-btn{width:52px;height:52px;border-radius:50%;border:none;background:#2e7d32;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s ease}
+    .fmenu-btn:active{transform:scale(.93)}
+    .fmenu-items{display:none;flex-direction:column;gap:8px;align-items:flex-end}
+    .fmenu-items.open{display:flex}
+    .fmenu-item{background:white;border:none;border-radius:99px;padding:10px 18px;font-family:inherit;font-size:.9rem;font-weight:bold;color:var(--text);box-shadow:var(--sh);cursor:pointer;white-space:nowrap;transition:background .15s}
+    .fmenu-item:hover{background:#f5f5f5}
+    .fmenu-save{background:linear-gradient(135deg,#66bb6a,#388e3c);color:white}
+    .fmenu-save:hover{background:linear-gradient(135deg,#81c784,#2e7d32)}
+
+    /* ── Status bar ── */
+    #statusMsg{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(46,125,50,.92);color:white;text-align:center;padding:8px;font-size:.82rem;font-weight:bold;pointer-events:none;display:none}
+    #statusMsg:not(:empty){display:block}
 
     /* ═════════════════════════════════════════
        BUILDER UI
        ═════════════════════════════════════════ */
-
-    /* Admin toggle FAB */
-    #editToggleBtn{position:fixed;bottom:24px;right:20px;z-index:900;background:#2e7d32;color:white;border:none;border-radius:99px;padding:12px 18px;font-family:inherit;font-size:.88rem;font-weight:bold;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:background .2s,transform .15s;white-space:nowrap}
-    #editToggleBtn:active{transform:scale(.93)}
-    #editToggleBtn.editing{background:#e65100}
-
-    /* Add section FAB */
-    #addSecBtn{position:fixed;bottom:24px;right:152px;z-index:900;background:var(--green);color:white;border:none;border-radius:50%;width:52px;height:52px;font-size:1.6rem;font-weight:bold;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;transition:transform .15s}
-    body.edit-mode #addSecBtn{display:flex}
-    #addSecBtn:active{transform:scale(.93)}
-
-    /* Status bar */
-    #statusMsg{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(46,125,50,.92);color:white;text-align:center;padding:8px;font-size:.82rem;font-weight:bold;pointer-events:none;display:none}
-    #statusMsg:not(:empty){display:block}
 
     /* Section wrapper */
     .sec-wrapper{position:relative;width:100%}
@@ -193,15 +211,18 @@
     /* Bottom sheet */
     .bottom-sheet{position:fixed;bottom:0;left:0;right:0;z-index:1100;background:white;border-radius:24px 24px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.18);transform:translateY(100%);transition:transform .3s ease;max-height:70vh;overflow:hidden}
     .bottom-sheet.open{transform:translateY(0)}
-    .bs-handle{width:40px;height:5px;background:#e0e0e0;border-radius:99px;margin:14px auto 0;cursor:pointer}
+    .bs-handle{width:40px;height:5px;background:#e0e0e0;border-radius:99px;margin:14px auto 0}
     .bs-inner{padding:16px 20px 32px;overflow-y:auto;max-height:calc(70vh - 40px)}
-    .bs-title{font-weight:bold;color:var(--brown);margin-bottom:16px;font-size:1.05rem}
+    .bs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .bs-title{font-weight:bold;color:var(--brown);font-size:1.05rem}
+    .bs-close-btn{background:none;border:1px solid #e0e0e0;border-radius:99px;padding:5px 12px;font-family:inherit;font-size:.82rem;color:var(--text-s);cursor:pointer}
+    .bs-close-btn:hover{background:#f5f5f5}
     .bs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .bs-block-btn{background:#f1f8e9;border:2px solid var(--green-lt);border-radius:var(--r);padding:14px 8px;font-family:inherit;font-size:.82rem;font-weight:bold;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:background .15s,border-color .15s}
     .bs-block-btn:hover{background:#c8e6c9;border-color:var(--green)}
     .bs-icon{font-size:1.6rem}
 
-    /* Event modal (dynamically created) */
+    /* Modal (パスワード / 企画追加) */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
     .modal-box{background:white;border-radius:24px;padding:28px 22px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
     .modal-box input,.modal-box select{width:100%;padding:10px 14px;border:2px solid var(--green-lt);border-radius:10px;font-family:inherit;font-size:.95rem;outline:none;transition:border-color .2s;margin-bottom:10px;box-sizing:border-box}
@@ -211,6 +232,7 @@
     .btn-cancel,.btn-add{flex:1;padding:12px;border:none;border-radius:99px;font-family:inherit;font-size:.92rem;font-weight:bold;cursor:pointer}
     .btn-cancel{background:#e0e0e0;color:var(--text-s)}
     .btn-add{background:linear-gradient(135deg,#66bb6a,#388e3c);color:white}
+    .pw-err{color:#e53935;font-size:.85rem;margin-bottom:8px;display:none}
 
     /* Paragraph add button */
     .para-add-btn{margin-top:10px;background:rgba(92,184,92,.12);color:var(--green-dk);border:2px dashed var(--green);border-radius:10px;padding:8px;width:100%;font-family:inherit;font-size:.88rem;font-weight:bold;cursor:pointer;display:none}
@@ -221,20 +243,38 @@
 </head>
 <body>
 
-<!-- Status bar (shown when loading/saving) -->
+<!-- Status bar -->
 <div id="statusMsg"></div>
 
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- Page content root — sections are rendered here by builder.js -->
+<!-- Page content root -->
 <main id="pageRoot"></main>
 
-<!-- Admin toggle FAB -->
-<button id="editToggleBtn">🌿 管理者ログイン</button>
+<!-- ═══ FLOAT MENU ═══ -->
+<div class="fmenu-wrap" id="fmenu">
+  <div class="fmenu-items" id="fmenuItems">
+    <!-- populated by builder.js -->
+  </div>
+  <button class="fmenu-btn" id="fmenuBtn">🌿</button>
+</div>
 
-<!-- Add section FAB (edit mode only) -->
-<button id="addSecBtn" title="セクションを追加">＋</button>
+<!-- ═══ PASSWORD MODAL ═══ -->
+<div class="modal-backdrop" id="pwModal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">
+      <img class="modal-icon" src="sozai/S__31580216.jpg" alt="">
+      🌿 管理者ログイン
+    </div>
+    <input type="password" id="pwInput" placeholder="パスワードを入力">
+    <p class="pw-err" id="pwErr">パスワードが違います</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn-cancel" id="pwCancelBtn">キャンセル</button>
+      <button class="btn-add"    id="pwSubmitBtn">ログイン</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initBuilder } from './builder.js';
