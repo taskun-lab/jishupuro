@@ -254,18 +254,41 @@ function setNestedField(obj, path, val){
 }
 
 /* ══════════════════════════════════════════
-   セクションオーバーレイ（↑↓✕ボタン）
+   背景プリセット
    ══════════════════════════════════════════ */
+const BG_PRESETS = [
+  {label:'ページ色',  value:'#e8f5e9',  type:'color'},
+  {label:'ミント',    value:'#e0f2f1',  type:'color'},
+  {label:'クリーム',  value:'#fffde7',  type:'color'},
+  {label:'白',        value:'#ffffff',  type:'color'},
+  {label:'深緑',      value:'#2e7d32',  type:'color'},
+  {label:'ネイビー',  value:'#1a237e',  type:'color'},
+  {label:'空',        value:'linear-gradient(180deg,#87ceeb,#b3d9f5)',       type:'gradient'},
+  {label:'森',        value:'linear-gradient(180deg,#85c151,#4a9626)',       type:'gradient'},
+  {label:'夕焼け',    value:'linear-gradient(135deg,#ffb347,#ff8c94)',       type:'gradient'},
+  {label:'フルーツ',  value:'linear-gradient(135deg,#dcedc8,#fff9c4 70%)',   type:'gradient'},
+  {label:'宇宙',      value:'linear-gradient(135deg,#0d47a1,#1a237e,#311b92)',type:'gradient'},
+  {label:'サンセット',value:'linear-gradient(135deg,#e65100,#f57c00,#ffd54f)',type:'gradient'},
+];
+
+/* ══════════════════════════════════════════
+   セクションオーバーレイ（↑↓🎨✕ボタン）
+   ══════════════════════════════════════════ */
+function buildOverlayHTML(secId){
+  return `
+    <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',-1)" title="上へ">↑</button>
+    <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',1)"  title="下へ">↓</button>
+    <button class="sec-ov-btn" onclick="window._builder.openBgPicker('${secId}',this)" title="背景">🎨</button>
+    <button class="sec-ov-btn danger" onclick="window._builder.removeSec('${secId}')" title="削除">✕</button>`;
+}
+
 function applyEditOverlays(){
   document.querySelectorAll('.sec-wrapper').forEach(wrapper=>{
     if(wrapper.querySelector('.sec-overlay')) return;
     const secId = wrapper.dataset.secId;
     const ov = document.createElement('div');
     ov.className = 'sec-overlay';
-    ov.innerHTML = `
-      <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',-1)" title="上へ">↑</button>
-      <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',1)"  title="下へ">↓</button>
-      <button class="sec-ov-btn danger" onclick="window._builder.removeSec('${secId}')" title="削除">✕</button>`;
+    ov.innerHTML = buildOverlayHTML(secId);
     wrapper.appendChild(ov);
   });
 }
@@ -609,10 +632,7 @@ function rerenderSection(secId){
   if(adminMode){
     const ov = document.createElement('div');
     ov.className = 'sec-overlay';
-    ov.innerHTML = `
-      <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',-1)">↑</button>
-      <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',1)">↓</button>
-      <button class="sec-ov-btn danger" onclick="window._builder.removeSec('${secId}')">✕</button>`;
+    ov.innerHTML = buildOverlayHTML(secId);
     neo.appendChild(ov);
     neo.querySelectorAll('[data-sec][data-field]').forEach(el=>{
       el.contentEditable = 'true'; el.classList.add('ce-active');
@@ -635,6 +655,121 @@ function showToast(msg){
 function setStatus(msg){
   const el = document.getElementById('statusMsg');
   if(el) el.textContent = msg;
+}
+
+/* ══════════════════════════════════════════
+   背景ピッカー
+   ══════════════════════════════════════════ */
+window._builder.openBgPicker = (secId, anchorBtn) => {
+  document.getElementById('bgPicker')?.remove();
+  const sec = pageState.sections.find(s=>s.id===secId);
+  const picker = document.createElement('div');
+  picker.id = 'bgPicker';
+  picker.className = 'bg-picker';
+  picker.innerHTML = `
+    <div class="bgp-head">
+      <span class="bgp-title">背景スタイル</span>
+      <button class="bgp-close" onclick="document.getElementById('bgPicker').remove()">✕</button>
+    </div>
+    <div class="bgp-grid">
+      ${BG_PRESETS.map((p,i)=>`
+        <button class="bgp-swatch${sec?.bg?.value===p.value?' bgp-active':''}"
+          style="background:${p.value||'repeating-conic-gradient(#eee 0% 25%,white 0% 50%) 0/14px 14px'}"
+          onclick="window._builder.applyBgPreset('${secId}',${i})" title="${p.label}">
+          <span class="bgp-label">${p.label}</span>
+        </button>`).join('')}
+    </div>
+    <button class="bgp-img-btn" onclick="window._builder.triggerBgImage('${secId}')">📷 画像をアップロード</button>`;
+
+  document.body.appendChild(picker);
+
+  /* 位置調整 */
+  const ar = anchorBtn.getBoundingClientRect();
+  const pw = Math.min(292, window.innerWidth - 16);
+  let left = ar.right - pw;
+  if(left < 8) left = 8;
+  let top = ar.bottom + 6;
+  if(top + 320 > window.innerHeight - 8) top = ar.top - 320 - 6;
+  picker.style.cssText = `left:${left}px;top:${top}px;width:${pw}px;`;
+
+  /* 外タップで閉じる */
+  setTimeout(()=>{
+    const away = e=>{
+      if(!picker.contains(e.target)){
+        picker.remove();
+        document.removeEventListener('click', away, true);
+      }
+    };
+    document.addEventListener('click', away, true);
+  }, 80);
+};
+
+window._builder.applyBgPreset = (secId, idx) => {
+  const p = BG_PRESETS[idx];
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec||!p) return;
+  sec.bg = {type:p.type, value:p.value};
+  document.getElementById('bgPicker')?.remove();
+  rerenderSection(secId);
+};
+
+window._builder.triggerBgImage = (secId) => {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async () => {
+    const file = inp.files[0]; if(!file) return;
+    try{
+      showToast('アップロード中…');
+      const b64 = await compress(file, 1200, 0.75);
+      const sec = pageState.sections.find(s=>s.id===secId);
+      if(sec) sec.bg = {type:'image', value:b64};
+      document.getElementById('bgPicker')?.remove();
+      rerenderSection(secId);
+      showToast('背景を更新しました ✅');
+    }catch(e){ showToast('エラー: '+e.message); }
+  };
+  inp.click();
+};
+
+/* ══════════════════════════════════════════
+   リンク編集
+   ══════════════════════════════════════════ */
+window._builder.editLink = (secId) => {
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  const current = sec.data.link || '';
+  showLinkDialog(current, url => {
+    sec.data.link = url || null;
+    rerenderSection(secId);
+  });
+};
+
+function showLinkDialog(current, onConfirm){
+  document.getElementById('linkDlg')?.remove();
+  const dlg = document.createElement('div');
+  dlg.id = 'linkDlg';
+  dlg.className = 'modal-backdrop';
+  dlg.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-title">🔗 リンクを設定</div>
+      <input type="url" id="linkUrlInp" placeholder="https://...">
+      <p style="font-size:.8rem;color:var(--text-s);margin-bottom:10px">空白にするとリンクなしになります</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel" onclick="document.getElementById('linkDlg').remove()">キャンセル</button>
+        <button class="btn-add"    id="linkConfirmBtn">確定</button>
+      </div>
+    </div>`;
+  document.body.appendChild(dlg);
+  const inp = document.getElementById('linkUrlInp');
+  inp.value = current;
+  inp.focus();
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') confirm(); });
+  document.getElementById('linkConfirmBtn').addEventListener('click', confirm);
+  function confirm(){
+    const url = inp.value.trim();
+    dlg.remove();
+    onConfirm(url);
+  }
 }
 
 window._builder.adminMode = false;

@@ -255,14 +255,15 @@ function renderHero(sec){
 function renderImage(sec){
   const d=sec.data;
   const isEditable=d.editable;
-  const style=`max-width:${d.maxWidth||'100%'};margin:0 auto;`;
+  const style=`max-width:${d.maxWidth||'100%'};margin:0 auto;position:relative;`;
   const imgStyle=`${d.blendMode?`mix-blend-mode:${d.blendMode};`:''}${d.rounded?'border-radius:var(--r);box-shadow:var(--sh);':''}`;
-  const src=d.src?esc(d.src):'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23e0e0e0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="14">画像を選択</text></svg>';
+  const src=d.src?esc(d.src):'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23e0e0e0"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="14">画像を選択</text></svg>';
   const wrapCls=d.wrapClass||'';
   const inner=`<img src="${src}" alt="${esc(d.alt||'')}" style="${imgStyle}"
     ${isEditable?`class="img-ed-wrap" onclick="window._builder?.triggerImageEdit('${sec.id}','src')"`:''}>`;
-  const linked=d.link?`<a href="${esc(d.link)}" target="_blank">${inner}</a>`:inner;
-  return `<div class="${wrapCls} rv" style="${style}">${linked}</div>`;
+  const linked=d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener">${inner}</a>`:inner;
+  const linkBtn=`<button class="link-edit-btn" onclick="event.stopPropagation();window._builder?.editLink('${sec.id}')">${d.link?'🔗 リンクあり':'🔗 リンクなし'}</button>`;
+  return `<div class="${wrapCls} rv" style="${style}">${linked}${linkBtn}</div>`;
 }
 
 /* ── TEXT ── */
