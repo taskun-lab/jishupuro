@@ -30,8 +30,12 @@ export async function initBuilder(){
     ]);
     setEventsCache(evs);
     setGalleryCache(gals);
-    if(pageData) setPageState(pageData);
-    else setPageState(JSON.parse(JSON.stringify(DEFAULT_PAGE)));
+    if(pageData){
+      mergeDefaults(pageData);
+      setPageState(pageData);
+    } else {
+      setPageState(JSON.parse(JSON.stringify(DEFAULT_PAGE)));
+    }
     renderAll();
     setupEditToggle();
     setStatus('');
@@ -53,6 +57,34 @@ function renderAll(){
   }
   reinitObserver();
   setupLongPressDragSections();
+}
+
+/* ── DEFAULT_PAGE との差分補完 ───────────────
+   Firestoreに空文字が保存されていた場合、
+   DEFAULT_PAGEの値でフィールドを復元する     */
+function mergeDefaults(pageData){
+  (pageData.sections||[]).forEach(sec=>{
+    const def = DEFAULT_PAGE.sections.find(d=>d.id===sec.id);
+    if(!def) return;
+    if(sec.type==='text'){
+      if(!sec.data.title?.trim()) sec.data.title = def.data.title;
+      if(Array.isArray(sec.data.paragraphs)){
+        sec.data.paragraphs = sec.data.paragraphs.map((p,i)=>
+          p?.trim() ? p : (def.data.paragraphs?.[i] ?? p)
+        );
+      }
+    }
+    if(sec.type==='steps' && Array.isArray(sec.data.items)){
+      sec.data.items = sec.data.items.map((item,i)=>{
+        const di = def.data.items?.[i];
+        return {
+          title: item.title?.trim() ? item.title : (di?.title ?? item.title),
+          desc:  item.desc?.trim()  ? item.desc  : (di?.desc  ?? item.desc)
+        };
+      });
+    }
+    if(!sec.data.title?.trim() && def.data.title) sec.data.title = def.data.title;
+  });
 }
 
 /* ── IntersectionObserver ────────────────── */
