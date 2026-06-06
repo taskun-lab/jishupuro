@@ -28,11 +28,11 @@
     @keyframes spin{to{transform:rotate(360deg)}}
 
     .rv{opacity:0;transform:translateY(36px);transition:opacity .55s ease,transform .55s ease}
-    .rv.on{opacity:1;transform:translateY(0)}
+    .rv.on,.rv.visible{opacity:1;transform:translateY(0)}
     .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}
 
     /* ── HERO ── */
-    .hero{position:relative;background:linear-gradient(180deg,#87ceeb 0%,#b3d9f5 26%,#ddc9a0 56%,#85c151 80%,#4a9626 100%);min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px 110px;overflow:hidden;text-align:center}
+    .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px 110px;overflow:hidden;text-align:center}
     .hero-logo{width:min(370px,88vw);border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.22);animation:bounceIn 1s ease both;position:relative;z-index:2;margin-bottom:22px}
     .hero-sub{font-size:clamp(.92rem,2.8vw,1.12rem);background:white;color:var(--green-dk);font-weight:bold;padding:10px 26px;border-radius:99px;box-shadow:var(--sh);animation:fadeUp .8s .7s ease both;position:relative;z-index:2}
     .hero-tree{position:absolute;bottom:60px;mix-blend-mode:multiply;pointer-events:none;z-index:1}
@@ -105,7 +105,7 @@
 
     /* ── CORK BOARD ── */
     .cork-board{background:#c8956a;border:10px solid #7a4f1d;border-radius:var(--r);padding:16px;box-shadow:inset 0 2px 8px rgba(0,0,0,.25),var(--sh);display:flex;flex-direction:column;gap:12px;min-height:80px}
-    .ev-row{background:#f5efd8;border-radius:12px;padding:12px 14px;box-shadow:2px 3px 8px rgba(0,0,0,.2)}
+    .ev-row{background:#f5efd8;border-radius:12px;padding:12px 14px;box-shadow:2px 3px 8px rgba(0,0,0,.2);position:relative}
     .ev-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
     .ev-pin{font-size:1rem;flex-shrink:0}
     .ev-date{background:white;border-radius:6px;padding:3px 10px;font-weight:bold;font-size:.88rem;box-shadow:1px 1px 3px rgba(0,0,0,.15);flex-shrink:0}
@@ -114,838 +114,131 @@
     .board-msg{color:rgba(255,255,255,.85);text-align:center;padding:14px;font-size:.92rem}
     .b-photo-wrap{margin-top:14px}
     .b-photo-wrap img{width:100%;border-radius:var(--r);box-shadow:var(--sh)}
-    .b-photo-caption{text-align:center;font-size:.8rem;color:var(--text-s);margin-top:6px}
 
-    /* ── FLOAT MENU ── */
-    .fmenu-wrap{position:fixed;bottom:24px;right:20px;z-index:900;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-    .fmenu-btn{width:52px;height:52px;border-radius:50%;border:none;background:#2e7d32;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s ease}
-    .fmenu-btn:active{transform:scale(.93)}
-    .fmenu-items{display:none;flex-direction:column;gap:8px;align-items:flex-end}
-    .fmenu-items.open{display:flex}
-    .fmenu-item{background:white;border:none;border-radius:99px;padding:10px 18px;font-family:inherit;font-size:.9rem;font-weight:bold;color:var(--text);box-shadow:var(--sh);cursor:pointer;white-space:nowrap}
-
-    /* ── EDIT MODE ── */
-    .edit-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#2e7d32;color:white;padding:10px 16px;display:none;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-    body.edit-mode .edit-bar{display:flex}
-    body.edit-mode{padding-top:52px}
-    body.edit-mode .fmenu-wrap{display:none}
-    .edit-bar-title{font-weight:bold;font-size:.9rem;flex:1}
-    .ebar-btn{padding:7px 14px;border:none;border-radius:99px;font-family:inherit;font-size:.82rem;font-weight:bold;cursor:pointer;white-space:nowrap}
-    .ebar-save{background:var(--yellow);color:#3d2f00}
-    .ebar-save:disabled{opacity:.6;cursor:not-allowed}
-    .ebar-cancel{background:rgba(255,255,255,.2);color:white}
-    .ebar-status{font-size:.78rem;opacity:.85}
-
-    /* Editable elements */
-    body.edit-mode [data-ed]{outline:2px dashed rgba(92,184,92,.7);border-radius:4px;cursor:text;min-width:20px;transition:outline-color .2s}
-    body.edit-mode [data-ed]:hover{outline-color:var(--green-dk)}
-    body.edit-mode [data-ed]:focus{outline:2px solid var(--green-dk);background:rgba(255,255,255,.85)}
-
-    /* Image edit overlay */
-    .img-ed-wrap{position:relative}
-    body.edit-mode .img-ed-wrap{cursor:pointer}
-    body.edit-mode .img-ed-wrap::after{content:'📷 タップして画像を変更';position:absolute;inset:0;background:rgba(0,0,0,.45);color:white;font-weight:bold;font-size:.9rem;border-radius:var(--r);display:flex;align-items:center;justify-content:center;pointer-events:none}
-
-    /* Event controls */
+    /* ── Event controls ── */
     .ev-del-btn{background:#ef5350;color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center}
     body.edit-mode .ev-del-btn{display:flex}
     .board-add-btn{background:rgba(255,255,255,.2);color:white;border:2px dashed rgba(255,255,255,.6);border-radius:10px;padding:10px;width:100%;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;display:none}
     body.edit-mode .board-add-btn{display:block}
 
-    /* Step controls */
+    /* ── Step controls ── */
     .step-del-btn{background:#ef5350;color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;flex-shrink:0;align-self:center;display:none;align-items:center;justify-content:center}
     body.edit-mode .step-del-btn{display:flex}
     .step-add-btn{background:rgba(92,184,92,.12);color:var(--green-dk);border:2px dashed var(--green);border-radius:10px;padding:10px;width:100%;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;margin-top:8px;display:none}
     body.edit-mode .step-add-btn{display:block}
 
-    /* Gallery edit */
+    /* ── Gallery edit ── */
     .gal-del{display:none;position:absolute;top:6px;right:6px;background:#ef5350;color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;z-index:10;align-items:center;justify-content:center}
     body.edit-mode .gal-del{display:flex}
     .gal-add-card{cursor:pointer;display:none!important;flex-direction:column}
     body.edit-mode .gal-add-card{display:flex!important}
     .gal-add-inner{width:212px;height:126px;display:flex;align-items:center;justify-content:center;background:#f1f8e9;font-size:2.5rem;color:var(--green)}
 
-    /* Bulletin add button */
+    /* ── Bulletin add button ── */
     .bphoto-add-btn{display:none;width:100%;margin-top:12px;padding:14px;background:var(--green);color:white;border:none;border-radius:99px;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer}
-    body.edit-mode .bphoto-add-btn.vis{display:block}
+    body.edit-mode .bphoto-add-btn{display:block}
 
-    /* Modals */
-    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:20px}
-    .modal-bg.open{display:flex}
-    .modal-card{background:white;border-radius:24px;padding:30px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
-    .modal-title{font-weight:bold;color:var(--brown);font-size:1.1rem;margin-bottom:18px;text-align:center}
-    .m-input,.m-select{width:100%;padding:11px 14px;border:2px solid var(--green-lt);border-radius:10px;font-family:inherit;font-size:.95rem;outline:none;transition:border-color .2s;margin-bottom:10px}
-    .m-input:focus,.m-select:focus{border-color:var(--green)}
-    .m-input.center{text-align:center}
-    .modal-btns{display:flex;gap:8px;margin-top:6px}
-    .m-btn{flex:1;padding:12px;border:none;border-radius:99px;font-family:inherit;font-size:.93rem;font-weight:bold;cursor:pointer}
-    .m-btn-green{background:linear-gradient(135deg,#66bb6a,#388e3c);color:white}
-    .m-btn-gray{background:#e0e0e0;color:var(--text-s)}
-    .modal-icon{width:48px;margin:0 auto 12px;display:block}
-    .pw-err{color:#e53935;font-size:.85rem;text-align:center;margin-top:6px}
-    .m-label{font-size:.83rem;color:var(--text-s);font-weight:bold;display:block;margin-bottom:4px}
+    /* ── Image edit overlay ── */
+    .img-ed-wrap{position:relative}
+    body.edit-mode .img-ed-wrap{cursor:pointer}
+    body.edit-mode .img-ed-wrap::after{content:'📷 タップして画像を変更';position:absolute;inset:0;background:rgba(0,0,0,.45);color:white;font-weight:bold;font-size:.9rem;border-radius:var(--r);display:flex;align-items:center;justify-content:center;pointer-events:none}
 
-    /* Toast */
+    /* ── Toast ── */
     #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:11px 22px;border-radius:99px;font-size:.88rem;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none;z-index:3000;white-space:nowrap}
     #toast.show{opacity:1}
 
-    /* Spinner */
+    /* ── Spinner ── */
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 
-    @media(max-width:380px){.ht-r2{display:none}.gal-card{width:180px}.gal-card img{height:108px}}
-
-    /* ── Drag & drop ── */
+    /* ── Drag ── */
     body.edit-mode .ev-row,
-    body.edit-mode .gal-card:not(.gal-add-card){
-      -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:grab;
-    }
+    body.edit-mode .gal-card:not(.gal-add-card){-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:grab}
     .drag-ghost{opacity:.2!important;transition:none!important}
-    .drag-clone{position:fixed;pointer-events:none;z-index:9999;opacity:.93;
-      box-shadow:0 12px 30px rgba(0,0,0,.4);border-radius:var(--r);
-      transform:rotate(1.5deg);transition:none}
-    body.edit-mode .ev-row::before{
-      content:'⠿';position:absolute;left:-2px;top:50%;transform:translateY(-50%);
-      font-size:1rem;color:rgba(0,0,0,.25);pointer-events:none;
-    }
-    .ev-row{position:relative}
+    .drag-clone{position:fixed;pointer-events:none;z-index:9999;opacity:.93;box-shadow:0 12px 30px rgba(0,0,0,.4);border-radius:var(--r);transform:rotate(1.5deg);transition:none}
+    .dragging-orig{opacity:.2!important;transition:none!important}
+
+    /* ═════════════════════════════════════════
+       BUILDER UI
+       ═════════════════════════════════════════ */
+
+    /* Admin toggle FAB */
+    #editToggleBtn{position:fixed;bottom:24px;right:20px;z-index:900;background:#2e7d32;color:white;border:none;border-radius:99px;padding:12px 18px;font-family:inherit;font-size:.88rem;font-weight:bold;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:background .2s,transform .15s;white-space:nowrap}
+    #editToggleBtn:active{transform:scale(.93)}
+    #editToggleBtn.editing{background:#e65100}
+
+    /* Add section FAB */
+    #addSecBtn{position:fixed;bottom:24px;right:152px;z-index:900;background:var(--green);color:white;border:none;border-radius:50%;width:52px;height:52px;font-size:1.6rem;font-weight:bold;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;transition:transform .15s}
+    body.edit-mode #addSecBtn{display:flex}
+    #addSecBtn:active{transform:scale(.93)}
+
+    /* Status bar */
+    #statusMsg{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(46,125,50,.92);color:white;text-align:center;padding:8px;font-size:.82rem;font-weight:bold;pointer-events:none;display:none}
+    #statusMsg:not(:empty){display:block}
+
+    /* Section wrapper */
+    .sec-wrapper{position:relative;width:100%}
+
+    /* Section overlay */
+    .sec-overlay{position:absolute;top:10px;right:10px;z-index:50;display:flex;gap:4px;background:rgba(255,255,255,.92);border-radius:99px;padding:4px 6px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+    .sec-ov-btn{background:#e8f5e9;color:var(--text);border:none;border-radius:50%;width:32px;height:32px;font-size:.92rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .sec-ov-btn:hover{background:#c8e6c9}
+    .sec-ov-btn.danger{background:#ffebee;color:#c62828}
+    .sec-ov-btn.danger:hover{background:#ef9a9a}
+
+    /* ContentEditable active */
+    .ce-active{outline:2px dashed rgba(92,184,92,.7);border-radius:4px;cursor:text;min-width:20px;transition:outline-color .2s}
+    .ce-active:hover{outline-color:var(--green-dk)}
+    .ce-active:focus{outline:2px solid var(--green-dk);background:rgba(255,255,255,.85)}
+
+    /* Bottom sheet */
+    .bottom-sheet{position:fixed;bottom:0;left:0;right:0;z-index:1100;background:white;border-radius:24px 24px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.18);transform:translateY(100%);transition:transform .3s ease;max-height:70vh;overflow:hidden}
+    .bottom-sheet.open{transform:translateY(0)}
+    .bs-handle{width:40px;height:5px;background:#e0e0e0;border-radius:99px;margin:14px auto 0;cursor:pointer}
+    .bs-inner{padding:16px 20px 32px;overflow-y:auto;max-height:calc(70vh - 40px)}
+    .bs-title{font-weight:bold;color:var(--brown);margin-bottom:16px;font-size:1.05rem}
+    .bs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .bs-block-btn{background:#f1f8e9;border:2px solid var(--green-lt);border-radius:var(--r);padding:14px 8px;font-family:inherit;font-size:.82rem;font-weight:bold;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:background .15s,border-color .15s}
+    .bs-block-btn:hover{background:#c8e6c9;border-color:var(--green)}
+    .bs-icon{font-size:1.6rem}
+
+    /* Event modal (dynamically created) */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
+    .modal-box{background:white;border-radius:24px;padding:28px 22px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+    .modal-box input,.modal-box select{width:100%;padding:10px 14px;border:2px solid var(--green-lt);border-radius:10px;font-family:inherit;font-size:.95rem;outline:none;transition:border-color .2s;margin-bottom:10px;box-sizing:border-box}
+    .modal-box input:focus,.modal-box select:focus{border-color:var(--green)}
+    .modal-title{font-weight:bold;color:var(--brown);font-size:1.05rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .modal-icon{width:32px;height:32px;object-fit:contain;flex-shrink:0}
+    .btn-cancel,.btn-add{flex:1;padding:12px;border:none;border-radius:99px;font-family:inherit;font-size:.92rem;font-weight:bold;cursor:pointer}
+    .btn-cancel{background:#e0e0e0;color:var(--text-s)}
+    .btn-add{background:linear-gradient(135deg,#66bb6a,#388e3c);color:white}
+
+    /* Paragraph add button */
+    .para-add-btn{margin-top:10px;background:rgba(92,184,92,.12);color:var(--green-dk);border:2px dashed var(--green);border-radius:10px;padding:8px;width:100%;font-family:inherit;font-size:.88rem;font-weight:bold;cursor:pointer;display:none}
+    body.edit-mode .para-add-btn{display:block}
+
+    @media(max-width:380px){.ht-r2{display:none}.gal-card{width:180px}.gal-card img{height:108px}}
   </style>
 </head>
 <body>
 
-<!-- Edit bar -->
-<div class="edit-bar" id="editBar">
-  <span class="edit-bar-title">✏️ 編集モード</span>
-  <span class="ebar-status" id="ebarStatus"></span>
-  <button class="ebar-btn ebar-cancel" onclick="cancelEdit()">破棄</button>
-  <button class="ebar-btn ebar-save"   id="saveBtn" onclick="saveAll()">💾 保存して終了</button>
-</div>
-
-<!-- Password modal -->
-<div class="modal-bg" id="pwModal">
-  <div class="modal-card">
-    <img class="modal-icon" src="sozai/S__31580216.jpg" alt="">
-    <div class="modal-title">🌿 管理者ログイン</div>
-    <input class="m-input center" type="password" id="pwInput" placeholder="パスワードを入力"
-           onkeydown="if(event.key==='Enter')tryLogin()">
-    <p class="pw-err" id="pwErr" style="display:none">パスワードが違います</p>
-    <div class="modal-btns" style="margin-top:14px">
-      <button class="m-btn m-btn-gray"  onclick="closePwModal()">キャンセル</button>
-      <button class="m-btn m-btn-green" onclick="tryLogin()">ログイン</button>
-    </div>
-  </div>
-</div>
-
-<!-- Event add modal -->
-<div class="modal-bg" id="evModal">
-  <div class="modal-card">
-    <div class="modal-title">＋ 企画を追加</div>
-    <label class="m-label">日付（例：6/19）</label>
-    <input class="m-input" id="evDate" placeholder="6/19">
-    <label class="m-label">企画名</label>
-    <input class="m-input" id="evTitle" placeholder="企画名を入力">
-    <label class="m-label">状態</label>
-    <select class="m-select" id="evStatus">
-      <option>募集中</option><option>開催予定</option><option>終了</option>
-    </select>
-    <div class="modal-btns">
-      <button class="m-btn m-btn-gray"  onclick="closeEvModal()">キャンセル</button>
-      <button class="m-btn m-btn-green" onclick="addEventConfirm()">追加する</button>
-    </div>
-  </div>
-</div>
-
-<!-- Hidden file inputs -->
-<input type="file" id="bPhotoInput"   accept="image/*" style="display:none" onchange="uploadBPhoto(this)">
-<input type="file" id="galFileInput"  accept="image/*" style="display:none" onchange="uploadGalImage(this)">
-<input type="file" id="tanukiInput"   accept="image/*" style="display:none" onchange="uploadTanuki(this)">
-
-<!-- Float menu -->
-<div class="fmenu-wrap">
-  <div class="fmenu-items" id="fmenuItems">
-    <button class="fmenu-item" onclick="openPwModal()">🔐 管理者ログイン</button>
-  </div>
-  <button class="fmenu-btn" onclick="document.getElementById('fmenuItems').classList.toggle('open')">🌿</button>
-</div>
+<!-- Status bar (shown when loading/saving) -->
+<div id="statusMsg"></div>
 
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- ═══ HERO ═══ -->
-<header class="hero">
-  <img class="hero-tree ht-l"  src="sozai/S__31580219.png" alt="">
-  <img class="hero-tree ht-r"  src="sozai/S__31580214.png" alt="">
-  <img class="hero-tree ht-r2" src="sozai/S__31580218.jpg" alt="">
-  <img class="hero-logo" src="sozai/「じしゅきかくの森」タイトルロゴver2.jpg" alt="あつまれ じしゅきかくの森">
-  <p class="hero-sub" id="heroSub" data-ed>🎪 誰でも簡単に始められる自主企画！</p>
-  <div class="hero-arrow">↓</div>
-  <div class="hero-wave">
-    <svg viewBox="0 0 1200 70" preserveAspectRatio="none">
-      <path d="M0,35 C200,70 400,0 600,35 C800,70 1000,0 1200,35 L1200,70 L0,70 Z" fill="#e8f5e9"/>
-    </svg>
-  </div>
-</header>
+<!-- Page content root — sections are rendered here by builder.js -->
+<main id="pageRoot"></main>
 
-<!-- TANUKI -->
-<div class="tanuki rv">
-  <div class="img-ed-wrap" onclick="triggerTanuki()">
-    <img id="tanukiImg" src="sozai/S__31580207.jpg" alt="楽しい企画を待ってるだなも！">
-  </div>
-</div>
+<!-- Admin toggle FAB -->
+<button id="editToggleBtn">🌿 管理者ログイン</button>
 
-<!-- EVENTS -->
-<section class="sec rv">
-  <h2 class="sec-title">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-    <span id="st0" data-ed>今後の企画</span>
-  </h2>
-  <div class="cork-board" id="eventBoard">
-    <p class="board-msg">読み込み中...</p>
-    <button class="board-add-btn" onclick="openEvModal()">＋ 企画を追加</button>
-  </div>
-  <div class="b-photo-wrap" id="bPhotoWrap" style="display:none">
-    <div class="img-ed-wrap" onclick="triggerBPhoto()">
-      <img id="bPhoto" src="" alt="掲示板の写真">
-    </div>
-    <p class="b-photo-caption">📌 実際の掲示板</p>
-  </div>
-  <button class="bphoto-add-btn" id="bPhotoAddBtn" onclick="triggerBPhoto()">📷 掲示板写真をアップロード</button>
-</section>
-
-<!-- WHAT IS -->
-<section class="sec rv">
-  <h2 class="sec-title">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-    <span id="st1" data-ed>自主プロってなあに？</span>
-  </h2>
-  <div class="what-card">
-    <p id="w1" data-ed>ピースボートセンターとうきょう（ピーセン）では、誰でも自分で企画を発案・開催できる仕組みを作りました🌿</p>
-    <p id="w2" data-ed>「やってみたい！」と思ったら、スタッフに大きく頼らなくても自分たちで時間と場所を作って実行できます。</p>
-    <p id="w3" data-ed>「カンボジアに行ってみた話」「ゲーム大会」「ものづくりワークショップ」…なんでもOK！</p>
-  </div>
-</section>
-
-<div class="fruit-row rv"><img src="sozai/S__31580217.jpg" alt=""></div>
-
-<!-- STEPS -->
-<section class="sec">
-  <h2 class="sec-title rv">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-    <span id="st2" data-ed>申請の流れ</span>
-  </h2>
-  <div class="steps" id="stepsContainer">
-    <!-- JS で動的に描画 -->
-  </div>
-  <button class="step-add-btn" onclick="addStep()">＋ ステップを追加</button>
-</section>
-
-<svg class="wv" viewBox="0 0 1200 60" preserveAspectRatio="none" style="background:var(--bg)">
-  <path d="M0,30 C300,60 600,0 900,30 C1050,45 1150,10 1200,30 L1200,60 L0,60 Z" fill="#e0f2f1"/>
-</svg>
-
-<!-- GALLERY -->
-<div class="gal-bg">
-  <div class="gal-head rv">
-    <h2 class="sec-title">
-      <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-      <span id="st3" data-ed>こんな企画が生まれたよ！</span>
-    </h2>
-  </div>
-  <div class="gal-scroll" id="galScroll">
-    <div class="gal-track" id="galTrack">
-      <div class="gal-card" data-card-id="h0"><button class="gal-del" onclick="delStaticGal('h0')">✕</button><img src="sozai/過去の企画サムネ/S__31580220.jpg" alt=""><div class="gal-label" id="gl1" data-ed>関東ラーメン博物館</div></div>
-      <div class="gal-card" data-card-id="h1"><button class="gal-del" onclick="delStaticGal('h1')">✕</button><img src="sozai/過去の企画サムネ/S__31580222.jpg" alt=""><div class="gal-label" id="gl2" data-ed>Sumとそ～り SELF おかえりなさい企画</div></div>
-      <div class="gal-card" data-card-id="h2"><button class="gal-del" onclick="delStaticGal('h2')">✕</button><img src="sozai/過去の企画サムネ/S__31580223.jpg" alt=""><div class="gal-label" id="gl3" data-ed>ヴィパッサナー瞑想体験記</div></div>
-      <div class="gal-card" data-card-id="h3"><button class="gal-del" onclick="delStaticGal('h3')">✕</button><img src="sozai/過去の企画サムネ/S__31580224.jpg" alt=""><div class="gal-label" id="gl4" data-ed>動物占いとは？</div></div>
-      <div class="gal-card" data-card-id="h4"><button class="gal-del" onclick="delStaticGal('h4')">✕</button><img src="sozai/過去の企画サムネ/S__31580225.jpg" alt=""><div class="gal-label" id="gl5" data-ed>リゾバのイロハ</div></div>
-      <div class="gal-card" data-card-id="h5"><button class="gal-del" onclick="delStaticGal('h5')">✕</button><img src="sozai/過去の企画サムネ/S__31580226.jpg" alt=""><div class="gal-label" id="gl6" data-ed>MBTI診断（16性格）ってなぁに？</div></div>
-      <div class="gal-card" data-card-id="h6"><button class="gal-del" onclick="delStaticGal('h6')">✕</button><img src="sozai/過去の企画サムネ/S__31580227.jpg" alt=""><div class="gal-label" id="gl7" data-ed>麻生昊汰の 馬場×ノミになる話 Vol.2</div></div>
-      <div class="gal-card" data-card-id="h7"><button class="gal-del" onclick="delStaticGal('h7')">✕</button><img src="sozai/過去の企画サムネ/S__31580228.jpg" alt=""><div class="gal-label" id="gl8" data-ed>Let's play ビブリオバトル</div></div>
-      <div class="gal-card" data-card-id="h8"><button class="gal-del" onclick="delStaticGal('h8')">✕</button><img src="sozai/過去の企画サムネ/S__31580229.jpg" alt=""><div class="gal-label" id="gl9" data-ed>ヒッチハイクと車中泊旅による 日本一周体験談</div></div>
-      <!-- dynamic items injected here -->
-      <div class="gal-card gal-add-card" onclick="document.getElementById('galFileInput').click()">
-        <div class="gal-add-inner">＋</div>
-        <div class="gal-label">画像を追加</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<svg class="wv" viewBox="0 0 1200 60" preserveAspectRatio="none" style="background:#e0f2f1">
-  <path d="M0,30 C200,0 500,60 800,30 C1000,10 1150,50 1200,30 L1200,60 L0,60 Z" fill="#e8f5e9"/>
-</svg>
-
-<!-- AFTER APPROVAL -->
-<section class="sec">
-  <h2 class="sec-title rv">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-    <span id="st4" data-ed>申請が通ったら</span>
-  </h2>
-  <div class="after-list">
-    <div class="after-card rv d1"><span class="aico">📌</span><div>
-      <span class="atitle" id="a1t" data-ed>掲示板に企画名を掲載</span>
-      <span id="a1b" data-ed>申請書通りの企画名が掲示板に載るよ。</span>
-      <div class="caution" id="a1c" data-ed>⚠️ 国旗・特定の人種・宗教などが特定されるデザインは使えません</div>
-    </div></div>
-    <div class="after-card rv d2"><span class="aico">📲</span><div>
-      <span class="atitle" id="a2t" data-ed>公式LINEでお知らせ配信</span>
-      <span id="a2b" data-ed>下のテンプレを使って内容を作成 → スタッフチェック後に配信されるよ。</span>
-    </div></div>
-    <div class="after-card rv d3"><span class="aico">🏃</span><div>
-      <span class="atitle" id="a3t" data-ed>当日：開始30分前に来場</span>
-      <span id="a3b" data-ed>会場の設営・準備のため、企画開始の30分前にはピーセンに来てね🌿</span>
-    </div></div>
-  </div>
-</section>
-
-<div class="fruit-row rv"><img src="sozai/S__31580217.jpg" alt=""></div>
-
-<!-- TEMPLATE -->
-<section class="sec rv">
-  <h2 class="sec-title">
-    <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">
-    <span id="st5" data-ed>LINE告知テンプレ</span>
-  </h2>
-  <div class="tpl-outer">
-    <p class="tpl-hint">↓ このテンプレをコピーして使ってね！</p>
-    <div class="tpl-text" id="tplText" data-ed>【自主企画のお知らせ🍃】
-自己紹介文章（80文字以内）
-
-★イベント名
-～こちらに入力～
-
-内容：（50文字以内）
-
-日付：
-時間：
-会場：とうきょうピーセン
-最後にみんなに向けて一言！</div>
-    <button class="copy-btn" id="copyBtn" onclick="doCopy()">
-      <span id="cIco">📋</span><span id="cLbl">ワンタップでコピー</span>
-    </button>
-  </div>
-</section>
-
-<svg class="wv" viewBox="0 0 1200 70" preserveAspectRatio="none" style="background:var(--bg)">
-  <path d="M0,35 C300,0 600,70 900,35 C1050,15 1150,55 1200,35 L1200,70 L0,70 Z" fill="#2e7d32"/>
-</svg>
-
-<footer>
-  <div class="footer-trees">
-    <img src="sozai/S__31580219.png" alt=""><img src="sozai/S__31580218.jpg" alt=""><img src="sozai/S__31580214.png" alt="">
-  </div>
-  <div class="footer-title" id="ftTitle" data-ed>とうきょうピーセン 自主プロ係</div>
-  <div id="ftSub" data-ed style="opacity:.78;font-size:.82rem;margin-top:4px;">ご不明な点はスタッフまでお声がけください🌿</div>
-</footer>
-
-<script>
-  const obs = new IntersectionObserver(es => es.forEach(e => {
-    if(e.isIntersecting) e.target.classList.add('on');
-  }), {threshold:.12});
-  window.obs = obs;
-  document.querySelectorAll('.rv').forEach(el => obs.observe(el));
-
-  const gs = document.getElementById('galScroll');
-  let dn=false,sx,sl;
-  gs.addEventListener('mousedown',e=>{dn=true;sx=e.pageX-gs.offsetLeft;sl=gs.scrollLeft;});
-  document.addEventListener('mouseup',()=>dn=false);
-  gs.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();gs.scrollLeft=sl-(e.pageX-gs.offsetLeft-sx)*1.5;});
-
-  function doCopy(){
-    const text=document.getElementById('tplText').innerText;
-    const btn=document.getElementById('copyBtn');
-    const ok=()=>{btn.classList.add('copied');document.getElementById('cIco').textContent='✅';document.getElementById('cLbl').textContent='コピーしました！';setTimeout(()=>{btn.classList.remove('copied');document.getElementById('cIco').textContent='📋';document.getElementById('cLbl').textContent='ワンタップでコピー';},2600);};
-    if(navigator.clipboard){navigator.clipboard.writeText(text).then(ok).catch(()=>{lc();ok();});}else{lc();ok();}
-    function lc(){const r=document.createRange();r.selectNode(document.getElementById('tplText'));const s=window.getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();}
-  }
-</script>
+<!-- Add section FAB (edit mode only) -->
+<button id="addSecBtn" title="セクションを追加">＋</button>
 
 <script type="module">
-import { initializeApp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc,
-         doc, getDoc, setDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const cfg = {
-  apiKey:"AIzaSyD7tSKKaGkkul4QPRez4dbZm2vqq3yMK1s",
-  authDomain:"jishupuro.firebaseapp.com",
-  projectId:"jishupuro",
-  storageBucket:"jishupuro.firebasestorage.app",
-  messagingSenderId:"924133934118",
-  appId:"1:924133934118:web:0b671fe7c7534cc6f8d2e7"
-};
-const app = initializeApp(cfg);
-const db  = getFirestore(app);
-
-const PW = '562008';
-const SC = {'募集中':'#5cb85c','開催予定':'#ff9800','終了':'#9e9e9e'};
-const TEXT_IDS = [
-  'heroSub','w1','w2','w3',
-  'a1t','a1b','a1c','a2t','a2b','a3t','a3b',
-  'st0','st1','st2','st3','st4','st5',
-  'gl1','gl2','gl3','gl4','gl5','gl6','gl7','gl8','gl9',
-  'ftTitle','ftSub'
-];
-const DEFAULT_STEPS = [
-  {title:'企画内容を確認する', desc:'誰でも参加できる内容で、ボラスタ規約7条に触れないものにしよう。'},
-  {title:'申請シートを記入する', desc:'企画日・開始〜終了時間・企画名・PA申請の有無・代表者氏名を書いてね。'},
-  {title:'スタッフに直接手渡す', desc:'記入できたら <strong>そ～り</strong> か <strong>マイカブ</strong> に直接渡してね📝'},
-  {title:'内容確認・打ち合わせ', desc:'スタッフが企画内容の確認と、会場の使い方（設営・PA）をレクチャーするよ。'},
-  {title:'掲示板 &amp; LINE でお知らせ', desc:'受付完了！スタッフが掲示板掲載と公式LINEへのお知らせ配信を準備するよ🌟'},
-];
-let stepsData = DEFAULT_STEPS.map(s=>({...s}));
-let adminMode = false;
-
-function toast(m, dur=2500){
-  const t=document.getElementById('toast');
-  t.textContent=m; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), dur);
-}
-
-function setStatus(m){ document.getElementById('ebarStatus').textContent = m; }
-
-/* ── 画像を圧縮してbase64に変換（Firestoreに直接保存） ── */
-async function compress(file, maxW=800, q=0.78){
-  return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const ratio = Math.min(maxW / img.width, 1);
-      const c = document.createElement('canvas');
-      c.width  = img.width  * ratio;
-      c.height = img.height * ratio;
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      resolve(c.toDataURL('image/jpeg', q));
-    };
-    img.src = url;
-  });
-}
-
-/* ── Firebase health check ── */
-async function checkFirebase(){
-  try {
-    await getDoc(doc(db,'settings','page'));
-  } catch(e){
-    toast('⚠️ Firebase接続エラー: '+e.code, 5000);
-  }
-}
-
-/* ── Auth ── */
-window.openPwModal = () => {
-  document.getElementById('fmenuItems').classList.remove('open');
-  document.getElementById('pwInput').value='';
-  document.getElementById('pwErr').style.display='none';
-  document.getElementById('pwModal').classList.add('open');
-  setTimeout(()=>document.getElementById('pwInput').focus(),150);
-};
-window.closePwModal = () => document.getElementById('pwModal').classList.remove('open');
-window.tryLogin = () => {
-  if(document.getElementById('pwInput').value===PW){ closePwModal(); enterEditMode(); }
-  else { document.getElementById('pwErr').style.display='block'; }
-};
-
-/* ── Edit mode ── */
-function enterEditMode(){
-  adminMode=true;
-  document.body.classList.add('edit-mode');
-  TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.contentEditable='true';});
-  document.getElementById('tplText').contentEditable='true';
-  syncBPhotoBtn();
-  loadEvents();
-  setupGalleryDrag();
-  renderSteps();
-  toast('✏️ 編集モードになりました。長押しで並び替えできます');
-}
-
-window.cancelEdit = () => {
-  adminMode=false;
-  document.body.classList.remove('edit-mode');
-  TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
-  document.getElementById('tplText').removeAttribute('contenteditable');
-  syncBPhotoBtn();
-  setStatus('');
-  loadAll();
-  toast('変更を破棄しました');
-};
-
-window.saveAll = async () => {
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>保存中...';
-  setStatus('Firebaseに接続中...');
-
-  collectStepsFromDOM();
-  const data={};
-  TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.innerHTML;});
-  data.tplText = document.getElementById('tplText').innerText;
-  data.steps = stepsData;
-
-  const timeout = new Promise((_,reject) =>
-    setTimeout(()=>reject(new Error('タイムアウト(10秒)。Firestoreのデータベースが作成されているか確認してください。')), 10000)
-  );
-
-  try {
-    await Promise.race([
-      setDoc(doc(db,'settings','page'), data, {merge:true}),
-      timeout
-    ]);
-    adminMode=false;
-    document.body.classList.remove('edit-mode');
-    TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('contenteditable');});
-    document.getElementById('tplText').removeAttribute('contenteditable');
-    syncBPhotoBtn();
-    renderSteps();
-    setStatus('');
-    btn.disabled=false; btn.innerHTML='💾 保存して終了';
-    loadEvents();
-    toast('✅ 保存しました！', 3000);
-  } catch(e){
-    btn.disabled=false; btn.innerHTML='💾 保存して終了';
-    setStatus('');
-    toast('❌ '+e.message, 8000);
-  }
-};
-
-/* ── Load ── */
-async function loadAll(){ await Promise.all([loadSettings(), loadEvents(), loadGallery()]); }
-
-async function loadSettings(){
-  try {
-    const snap = await getDoc(doc(db,'settings','page'));
-    if(!snap.exists()) return;
-    const s = snap.data();
-    TEXT_IDS.forEach(id=>{
-      if(s[id]!==undefined){ const el=document.getElementById(id); if(el) el.innerHTML=s[id]; }
-    });
-    if(s.tplText!==undefined) document.getElementById('tplText').innerText=s.tplText;
-    if(s.evOrder)  window._evOrder  = s.evOrder;
-    if(s.galOrder) window._galOrder = s.galOrder;
-    if(s.tanukiImgUrl) document.getElementById('tanukiImg').src=s.tanukiImgUrl;
-    if(s.bulletinPhotoUrl){
-      document.getElementById('bPhoto').src=s.bulletinPhotoUrl;
-      document.getElementById('bPhotoWrap').style.display='block';
-    }
-    window._deletedGalCards = s.deletedGalCards || [];
-    window._deletedGalCards.forEach(id=>{ document.querySelector(`[data-card-id="${id}"]`)?.remove(); });
-    if(s.steps?.length) stepsData = s.steps;
-    renderSteps();
-    syncBPhotoBtn();
-  } catch(_){ renderSteps(); }
-}
-
-/* ── Events ── */
-async function loadEvents(){
-  const board = document.getElementById('eventBoard');
-  try {
-    const snap = await getDocs(collection(db,'events'));
-    const addBtn = `<button class="board-add-btn" onclick="openEvModal()">＋ 企画を追加</button>`;
-    if(snap.empty){ board.innerHTML=`<p class="board-msg">企画を準備中です 🌿</p>${addBtn}`; return; }
-    const evs=[];
-    snap.forEach(d=>evs.push({id:d.id,...d.data()}));
-    evs.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-    board.innerHTML = evs.map(e=>{
-      const c=SC[e.status]||'#9e9e9e';
-      const del=adminMode?`<button class="ev-del-btn" onclick="delEvent('${e.id}')">✕</button>`:'';
-      return `<div class="ev-row" data-ev-id="${e.id}">
-        <div class="ev-top">
-          <span class="ev-pin">📌</span>
-          <div class="ev-date">${e.date}</div>
-          <div class="ev-status" style="background:${c}">${e.status}</div>
-          ${del}
-        </div>
-        <div class="ev-title">${e.title}</div>
-      </div>`;
-    }).join('')+addBtn;
-
-    // 保存済み順序を適用
-    if (window._evOrder?.length) {
-      const rows=[...board.querySelectorAll('.ev-row')];
-      const addBt=board.querySelector('.board-add-btn');
-      [...window._evOrder.map(id=>rows.find(r=>r.dataset.evId===id)).filter(Boolean),
-       ...rows.filter(r=>!window._evOrder.includes(r.dataset.evId))]
-        .forEach(r=>addBt?board.insertBefore(r,addBt):board.appendChild(r));
-    }
-    if(adminMode) setupEventsDrag();
-  } catch(e){
-    board.innerHTML=`<p class="board-msg">読み込みエラー: ${e.code||e.message}</p>`;
-  }
-}
-
-window.openEvModal  = ()=>{ document.getElementById('evDate').value=''; document.getElementById('evTitle').value=''; document.getElementById('evModal').classList.add('open'); };
-window.closeEvModal = ()=> document.getElementById('evModal').classList.remove('open');
-window.addEventConfirm = async ()=>{
-  const date=document.getElementById('evDate').value.trim();
-  const title=document.getElementById('evTitle').value.trim();
-  const status=document.getElementById('evStatus').value;
-  if(!date||!title){ toast('日付と企画名を入力してください'); return; }
-  try { await addDoc(collection(db,'events'),{date,title,status,createdAt:serverTimestamp()}); closeEvModal(); toast('✅ 企画を追加しました'); loadEvents(); }
-  catch(e){ toast('エラー: '+e.message); }
-};
-window.delEvent = async id=>{
-  if(!confirm('この企画を削除しますか？')) return;
-  try { await deleteDoc(doc(db,'events',id)); toast('🗑️ 削除しました'); loadEvents(); }
-  catch(_){ toast('削除エラー'); }
-};
-
-/* ── Tanuki banner ── */
-window.triggerTanuki = ()=>{ if(adminMode) document.getElementById('tanukiInput').click(); };
-window.uploadTanuki = async input=>{
-  if(!input.files[0]) return;
-  toast('📷 処理中...');
-  try {
-    const dataUrl = await compress(input.files[0], 1000, 0.82);
-    await setDoc(doc(db,'settings','page'),{tanukiImgUrl: dataUrl},{merge:true});
-    document.getElementById('tanukiImg').src = dataUrl;
-    toast('✅ 画像を保存しました', 3000);
-  } catch(e){ toast('❌ '+e.message, 5000); }
-};
-
-/* ── Bulletin photo ── */
-function syncBPhotoBtn(){
-  const btn=document.getElementById('bPhotoAddBtn');
-  const hasPhoto=document.getElementById('bPhotoWrap').style.display!=='none';
-  btn.classList.toggle('vis', adminMode && !hasPhoto);
-}
-window.triggerBPhoto = ()=>{ if(adminMode) document.getElementById('bPhotoInput').click(); };
-window.uploadBPhoto = async input=>{
-  if(!input.files[0]) return;
-  toast('📷 処理中...');
-  try {
-    const dataUrl = await compress(input.files[0], 900, 0.80);
-    await setDoc(doc(db,'settings','page'),{bulletinPhotoUrl: dataUrl},{merge:true});
-    document.getElementById('bPhoto').src = dataUrl;
-    document.getElementById('bPhotoWrap').style.display='block';
-    syncBPhotoBtn();
-    toast('✅ 掲示板写真を保存しました', 3000);
-  } catch(e){ toast('❌ '+e.message, 5000); }
-};
-
-/* ── Gallery ── */
-async function loadGallery(){
-  try {
-    const snap = await getDocs(collection(db,'gallery'));
-    if(snap.empty) return;
-    const track=document.getElementById('galTrack');
-    const addCard=track.querySelector('.gal-add-card');
-    snap.forEach(d=>{ const g=d.data(); track.insertBefore(mkGalCard(d.id,g.url,g.label), addCard); });
-  } catch(_){}
-  // 保存済み順序を適用
-  if(window._galOrder?.length){
-    const track=document.getElementById('galTrack');
-    const addCard=track.querySelector('.gal-add-card');
-    const allCards=[...track.querySelectorAll('.gal-card:not(.gal-add-card)')];
-    window._galOrder
-      .map(id=>allCards.find(c=>(c.dataset.cardId||c.dataset.galId)===id))
-      .filter(Boolean)
-      .forEach(c=>track.insertBefore(c,addCard));
-  }
-  if(adminMode) setupGalleryDrag();
-}
-function mkGalCard(id,url,label){
-  const div=document.createElement('div'); div.className='gal-card'; div.dataset.galId=id;
-  div.innerHTML=`<button class="gal-del" onclick="delGal('${id}')">✕</button><img src="${url}" alt="${label}" style="width:100%;height:126px;object-fit:cover"><div class="gal-label">${label}</div>`;
-  return div;
-}
-window.uploadGalImage = async input=>{
-  if(!input.files[0]) return;
-  const label=prompt('この画像のタイトルを入力してください：','企画名');
-  if(!label) return;
-  toast('📷 処理中...');
-  try {
-    const dataUrl = await compress(input.files[0], 500, 0.78);
-    const dref=await addDoc(collection(db,'gallery'),{url: dataUrl, label, createdAt:serverTimestamp()});
-    const track=document.getElementById('galTrack');
-    track.insertBefore(mkGalCard(dref.id, dataUrl, label), track.querySelector('.gal-add-card'));
-    input.value=''; toast('✅ 画像を追加しました', 3000);
-  } catch(e){ toast('❌ '+e.message, 5000); }
-};
-window.delGal = async id=>{
-  if(!confirm('この画像を削除しますか？')) return;
-  try { await deleteDoc(doc(db,'gallery',id)); document.querySelector(`[data-gal-id="${id}"]`)?.remove(); toast('🗑️ 削除しました'); }
-  catch(_){ toast('削除エラー'); }
-};
-
-window.delStaticGal = async id=>{
-  if(!confirm('この画像を削除しますか？')) return;
-  document.querySelector(`[data-card-id="${id}"]`)?.remove();
-  window._deletedGalCards = window._deletedGalCards||[];
-  if(!window._deletedGalCards.includes(id)) window._deletedGalCards.push(id);
-  try{ await setDoc(doc(db,'settings','page'),{deletedGalCards:window._deletedGalCards},{merge:true}); toast('🗑️ 削除しました'); }
-  catch(_){ toast('削除エラー'); }
-};
-
-/* ── Steps ── */
-function renderSteps(){
-  const c=document.getElementById('stepsContainer');
-  if(!c) return;
-  c.innerHTML=stepsData.map((s,i)=>`
-    ${i>0?'<div class="step-line"></div>':''}
-    <div class="step-card rv" data-step-idx="${i}">
-      <div class="step-num"><span class="step-s">STEP</span><span class="step-n">${i+1}</span></div>
-      <div style="flex:1;min-width:0">
-        <div class="step-title"${adminMode?' contenteditable="true"':''} data-field="title">${s.title}</div>
-        <div class="step-desc"${adminMode?' contenteditable="true"':''} data-field="desc">${s.desc}</div>
-      </div>
-      <button class="step-del-btn" onclick="delStep(${i})" title="削除">✕</button>
-    </div>`).join('');
-  c.querySelectorAll('.step-card').forEach(el=>window.obs?.observe(el));
-}
-
-function collectStepsFromDOM(){
-  document.querySelectorAll('#stepsContainer .step-card').forEach((card,i)=>{
-    if(!stepsData[i]) return;
-    stepsData[i].title=card.querySelector('[data-field="title"]').innerHTML;
-    stepsData[i].desc =card.querySelector('[data-field="desc"]').innerHTML;
-  });
-}
-
-window.addStep=()=>{
-  collectStepsFromDOM();
-  stepsData.push({title:'新しいステップ',desc:'説明を入力してください。'});
-  renderSteps();
-  toast('ステップを追加しました');
-};
-window.delStep=i=>{
-  if(stepsData.length<=1){toast('最低1つは必要です');return;}
-  if(!confirm('このステップを削除しますか？'))return;
-  collectStepsFromDOM();
-  stepsData.splice(i,1);
-  renderSteps();
-};
-
-/* ══════════════════════════════════════
-   長押しドラッグ並び替え
-   （参考：task.js setupDragHandle）
-   ══════════════════════════════════════ */
-function setupLongPressDrag(el, container, axis, onEnd){
-  let timer=null, startXY=null;
-  const getP =ev=>{ const p=ev.touches?.[0]||ev; return axis==='h'?p.clientX:p.clientY; };
-  const getXY=ev=>{ const p=ev.touches?.[0]||ev; return {x:p.clientX,y:p.clientY}; };
-
-  const startPress=e=>{
-    if(!adminMode) return;
-    if(timer) return;
-    if(e.target.closest('button')) return;
-    startXY=getXY(e);
-    const p0=getP(e);
-    timer=setTimeout(()=>{
-      timer=null;
-      if(navigator.vibrate) navigator.vibrate(30);
-      doDrag(p0);
-    },500);
-  };
-
-  const maybeCancel=e=>{
-    if(!timer||!startXY) return;
-    const p=getXY(e);
-    if(Math.abs(p.x-startXY.x)>8||Math.abs(p.y-startXY.y)>8){
-      clearTimeout(timer); timer=null;
-    }
-  };
-  const cancel=()=>{ clearTimeout(timer); timer=null; };
-
-  const doDrag=p0=>{
-    const rect=el.getBoundingClientRect();
-    const clone=el.cloneNode(true);
-    clone.querySelectorAll('button').forEach(b=>b.remove());
-    Object.assign(clone.style,{
-      position:'fixed',
-      left:rect.left+'px', top:rect.top+'px',
-      width:rect.width+'px', height:rect.height+'px',
-      pointerEvents:'none', zIndex:'9999', opacity:'.93',
-      boxShadow:'0 12px 30px rgba(0,0,0,.4)',
-      borderRadius:'18px', transition:'none', transform:'rotate(1.5deg)'
-    });
-    document.body.appendChild(clone);
-    el.classList.add('drag-ghost');
-    document.body.style.userSelect='none';
-    document.body.style.webkitUserSelect='none';
-
-    const move=ev=>{
-      ev.preventDefault();
-      const d=getP(ev)-p0;
-      if(axis==='h') clone.style.left=(rect.left+d)+'px';
-      else           clone.style.top =(rect.top +d)+'px';
-
-      const center=(axis==='h')
-        ? rect.left+d+rect.width /2
-        : rect.top +d+rect.height/2;
-
-      const sibs=[...container.children].filter(c=>
-        c!==el && !c.classList.contains('drag-ghost') &&
-        !c.classList.contains('gal-add-card') && c.tagName!=='BUTTON');
-
-      for(const s of sibs){
-        const sr=s.getBoundingClientRect();
-        const sc=axis==='h'?sr.left+sr.width/2:sr.top+sr.height/2;
-        if(center<sc){ container.insertBefore(el,s); return; }
-      }
-      const last=container.querySelector('.gal-add-card,.board-add-btn,.step-add-btn');
-      last ? container.insertBefore(el,last) : container.appendChild(el);
-    };
-
-    const up=()=>{
-      document.removeEventListener('pointermove',move);
-      document.removeEventListener('pointerup',up);
-      document.removeEventListener('touchmove',move);
-      document.removeEventListener('touchend',up);
-      clone.remove();
-      el.classList.remove('drag-ghost');
-      document.body.style.userSelect='';
-      document.body.style.webkitUserSelect='';
-      onEnd?.();
-    };
-
-    document.addEventListener('pointermove',move,{passive:false});
-    document.addEventListener('pointerup',up);
-    document.addEventListener('touchmove',move,{passive:false});
-    document.addEventListener('touchend',up);
-  };
-
-  el.addEventListener('pointerdown', startPress);
-  el.addEventListener('pointerup',   cancel);
-  el.addEventListener('pointermove', maybeCancel);
-  el.addEventListener('pointercancel',cancel);
-  // passive:true でスクロールを妨げない。ドラッグ開始後は document 側で preventDefault
-  el.addEventListener('touchstart', startPress, {passive:true});
-  el.addEventListener('touchmove',  maybeCancel,{passive:true});
-  el.addEventListener('touchend',   cancel);
-  el.addEventListener('touchcancel',cancel);
-  el.addEventListener('contextmenu',e=>{ if(adminMode) e.preventDefault(); });
-}
-
-function setupEventsDrag(){
-  const board=document.getElementById('eventBoard');
-  board.querySelectorAll('.ev-row').forEach(row=>{
-    setupLongPressDrag(row, board, 'v', saveEvOrder);
-  });
-}
-
-function setupGalleryDrag(){
-  const track=document.getElementById('galTrack');
-  track.querySelectorAll('.gal-card:not(.gal-add-card)').forEach(card=>{
-    setupLongPressDrag(card, track, 'h', saveGalOrder);
-  });
-}
-
-async function saveEvOrder(){
-  const order=[...document.querySelectorAll('#eventBoard .ev-row')]
-    .map(r=>r.dataset.evId).filter(Boolean);
-  window._evOrder=order;
-  try{ await setDoc(doc(db,'settings','page'),{evOrder:order},{merge:true}); }catch(_){}
-}
-
-async function saveGalOrder(){
-  const order=[...document.querySelectorAll('#galTrack .gal-card:not(.gal-add-card)')]
-    .map(c=>c.dataset.cardId||c.dataset.galId).filter(Boolean);
-  window._galOrder=order;
-  try{ await setDoc(doc(db,'settings','page'),{galOrder:order},{merge:true}); }catch(_){}
-}
-
-/* ── Init ── */
-checkFirebase();
-loadAll();
+  import { initBuilder } from './builder.js';
+  initBuilder();
 </script>
 </body>
 </html>
