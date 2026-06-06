@@ -182,6 +182,10 @@ export const SECTION_TEMPLATES = {
     type:'divider', visible:true, bg:{type:'color',value:''},stamps:[],
     data:{topColor:'var(--bg)',bottomColor:'#e0f2f1',
           path:'M0,30 C300,60 600,0 900,30 C1050,45 1150,10 1200,30 L1200,60 L0,60 Z',h:60}
+  },
+  embed:{
+    type:'embed', visible:true, bg:{type:'color',value:''},stamps:[],
+    data:{url:'',title:''}
   }
 };
 
@@ -211,7 +215,7 @@ export function renderSection(sec){
     hero:renderHero, image:renderImage, text:renderText,
     steps:renderSteps, gallery:renderGallery, events:renderEvents,
     template:renderTemplate, divider:renderDivider,
-    after:renderAfter, footer:renderFooter
+    after:renderAfter, footer:renderFooter, embed:renderEmbed
   }[sec.type];
   if(!fn) return null;
   const wrapper=document.createElement('div');
@@ -477,6 +481,52 @@ function setupSectionInteractivity(wrapper, sec){
     document.addEventListener('mouseup',()=>dn=false);
     gs.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();gs.scrollLeft=sl-(e.pageX-gs.offsetLeft-sx)*1.5;});
   }
+}
+
+/* ── EMBED ── */
+function toEmbedUrl(url){
+  try{
+    const u=new URL(url);
+    const host=u.hostname.replace('www.','');
+    /* YouTube */
+    if(host==='youtube.com'&&u.pathname==='/watch'){
+      const v=u.searchParams.get('v');
+      if(v) return `https://www.youtube.com/embed/${v}`;
+    }
+    if(host==='youtu.be'){
+      return `https://www.youtube.com/embed${u.pathname}`;
+    }
+    if(host==='youtube.com'&&u.pathname.startsWith('/embed/')) return url;
+    /* Vimeo */
+    if(host==='vimeo.com') return `https://player.vimeo.com/video${u.pathname}`;
+    /* Google Slides */
+    if(host==='docs.google.com'&&u.pathname.includes('/presentation/')){
+      return url.replace(/\/(edit|pub|present)(#.*)?$/,'/embed');
+    }
+  }catch(e){}
+  return url;
+}
+
+function renderEmbed(sec){
+  const d=sec.data;
+  const editBtn=`<button class="embed-edit-btn" onclick="event.stopPropagation();window._builder?.editEmbedUrl('${sec.id}')">▶ URLを変更</button>`;
+  if(!d.url){
+    return `<div class="embed-wrap rv">
+      <div class="embed-placeholder${isAdmin()?' embed-ed':''}" onclick="window._builder?.editEmbedUrl('${sec.id}')">
+        <span>▶</span>動画のURLを入力
+      </div>
+    </div>`;
+  }
+  const embedUrl=toEmbedUrl(d.url);
+  return `<div class="embed-wrap rv">
+    ${d.title?`<p class="embed-title" data-sec="${sec.id}" data-field="title">${esc(d.title)}</p>`:''}
+    <div class="embed-aspect">
+      <iframe src="${esc(embedUrl)}" frameborder="0" allowfullscreen
+        allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture">
+      </iframe>
+    </div>
+    ${editBtn}
+  </div>`;
 }
 
 /* ── Helpers ── */

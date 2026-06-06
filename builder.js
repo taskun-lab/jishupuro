@@ -495,6 +495,7 @@ function createBottomSheet(){
     ${[
       {type:'text',   icon:'📝', label:'テキスト'},
       {type:'image',  icon:'🖼️', label:'画像'},
+      {type:'embed',  icon:'▶️', label:'動画'},
       {type:'steps',  icon:'📋', label:'ステップ'},
       {type:'gallery',icon:'🎠', label:'ギャラリー'},
       {type:'after',  icon:'✅', label:'アクション'},
@@ -909,6 +910,21 @@ window._builder.triggerBgImage = (secId) => {
 };
 
 /* ══════════════════════════════════════════
+   動画埋め込みURL編集
+   ══════════════════════════════════════════ */
+window._builder.editEmbedUrl = (secId) => {
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  showLinkDialog(sec.data.url||'', url => {
+    sec.data.url = url||'';
+    rerenderSection(secId);
+  }, {
+    title: '▶ 動画URLを設定',
+    hint:  'YouTube・Vimeo・Googleスライドに対応。空白で削除。'
+  });
+};
+
+/* ══════════════════════════════════════════
    リンク編集
    ══════════════════════════════════════════ */
 window._builder.editLink = (secId) => {
@@ -921,16 +937,18 @@ window._builder.editLink = (secId) => {
   });
 };
 
-function showLinkDialog(current, onConfirm){
+function showLinkDialog(current, onConfirm, opts={}){
   document.getElementById('linkDlg')?.remove();
+  const title = opts.title || '🔗 リンクを設定';
+  const hint  = opts.hint  || '空白にするとリンクなしになります';
   const dlg = document.createElement('div');
   dlg.id = 'linkDlg';
   dlg.className = 'modal-backdrop';
   dlg.innerHTML = `
     <div class="modal-box">
-      <div class="modal-title">🔗 リンクを設定</div>
+      <div class="modal-title">${title}</div>
       <input type="url" id="linkUrlInp" placeholder="https://...">
-      <p style="font-size:.8rem;color:var(--text-s);margin-bottom:10px">空白にするとリンクなしになります</p>
+      <p style="font-size:.8rem;color:var(--text-s);margin-bottom:10px">${hint}</p>
       <div style="display:flex;gap:8px">
         <button class="btn-cancel" onclick="document.getElementById('linkDlg').remove()">キャンセル</button>
         <button class="btn-add"    id="linkConfirmBtn">確定</button>
