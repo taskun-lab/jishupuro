@@ -276,9 +276,14 @@ const BG_PRESETS = [
    セクションオーバーレイ（↑↓🎨✕ボタン）
    ══════════════════════════════════════════ */
 function buildOverlayHTML(secId){
+  const sec = pageState.sections.find(s=>s.id===secId);
+  const sizeBtn = (sec?.type==='image'||sec?.type==='gallery')
+    ? `<button class="sec-ov-btn" onclick="window._builder.openSizePicker('${secId}',this)" title="サイズ">⤡</button>`
+    : '';
   return `
     <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',-1)" title="上へ">↑</button>
     <button class="sec-ov-btn" onclick="window._builder.moveSec('${secId}',1)"  title="下へ">↓</button>
+    ${sizeBtn}
     <button class="sec-ov-btn" onclick="window._builder.openBgPicker('${secId}',this)" title="背景">🎨</button>
     <button class="sec-ov-btn danger" onclick="window._builder.removeSec('${secId}')" title="削除">✕</button>`;
 }
@@ -644,6 +649,81 @@ function setStatus(msg){
   const el = document.getElementById('statusMsg');
   if(el) el.textContent = msg;
 }
+
+/* ══════════════════════════════════════════
+   サイズピッカー
+   ══════════════════════════════════════════ */
+window._builder.openSizePicker = (secId, anchorBtn) => {
+  document.getElementById('sizePicker')?.remove();
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  const isGallery = sec.type === 'gallery';
+  const current = isGallery ? (sec.data.cardWidth||212) : (sec.data.maxWidth||'100%');
+
+  const presets = isGallery
+    ? [{label:'小',val:150},{label:'中',val:212},{label:'大',val:280},{label:'特大',val:360}]
+    : [{label:'小',val:'180px'},{label:'中',val:'320px'},{label:'大',val:'480px'},{label:'全幅',val:'100%'}];
+
+  const activeVal = String(current);
+  const picker = document.createElement('div');
+  picker.id = 'sizePicker';
+  picker.className = 'bg-picker';
+  picker.innerHTML = `
+    <div class="bgp-head">
+      <span class="bgp-title">${isGallery?'カードサイズ':'画像サイズ'}</span>
+      <button class="bgp-close" onclick="document.getElementById('sizePicker').remove()">✕</button>
+    </div>
+    <div class="szp-presets">
+      ${presets.map(p=>`
+        <button class="szp-btn${activeVal===String(p.val)?' szp-active':''}"
+          onclick="window._builder.applySize('${secId}','${p.val}')">
+          ${p.label}
+        </button>`).join('')}
+    </div>
+    <div class="szp-custom">
+      <input type="number" id="szpInput"
+        value="${isGallery ? (typeof current==='number'?current:parseInt(current)||212) : (parseInt(current)||100)}"
+        min="${isGallery?80:10}" max="${isGallery?600:100}" step="${isGallery?10:5}">
+      <span class="szp-unit">${isGallery?'px':'%'}</span>
+      <button class="szp-apply" onclick="window._builder.applySizeCustom('${secId}',${isGallery})">適用</button>
+    </div>`;
+
+  document.body.appendChild(picker);
+
+  const ar = anchorBtn.getBoundingClientRect();
+  const pw = Math.min(240, window.innerWidth - 16);
+  let left = ar.right - pw;
+  if(left < 8) left = 8;
+  let top = ar.bottom + 6;
+  if(top + 200 > window.innerHeight - 8) top = ar.top - 200 - 6;
+  picker.style.cssText = `left:${left}px;top:${top}px;width:${pw}px;`;
+
+  setTimeout(()=>{
+    const away = e=>{
+      if(!picker.contains(e.target)){
+        picker.remove();
+        document.removeEventListener('click', away, true);
+      }
+    };
+    document.addEventListener('click', away, true);
+  }, 80);
+};
+
+window._builder.applySize = (secId, val) => {
+  const sec = pageState.sections.find(s=>s.id===secId);
+  if(!sec) return;
+  if(sec.type==='gallery') sec.data.cardWidth = parseInt(val)||212;
+  else sec.data.maxWidth = val;
+  document.getElementById('sizePicker')?.remove();
+  rerenderSection(secId);
+};
+
+window._builder.applySizeCustom = (secId, isGallery) => {
+  const raw = document.getElementById('szpInput')?.value;
+  if(!raw) return;
+  const val = isGallery ? parseInt(raw) : (parseInt(raw)+'%');
+  window._builder.applySize(secId, val);
+};
 
 /* ══════════════════════════════════════════
    画像ピッカー（アセット選択 + アップロード）

@@ -255,15 +255,22 @@ function renderHero(sec){
 function renderImage(sec){
   const d=sec.data;
   const isEditable=d.editable;
-  const style=`max-width:${d.maxWidth||'100%'};margin:0 auto;position:relative;`;
+  const wrapStyle=`max-width:${d.maxWidth||'100%'};margin:0 auto;position:relative;`;
   const imgStyle=`${d.blendMode?`mix-blend-mode:${d.blendMode};`:''}${d.rounded?'border-radius:var(--r);box-shadow:var(--sh);':''}`;
-  const src=d.src?esc(d.src):'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="%23e0e0e0"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="14">画像を選択</text></svg>';
   const wrapCls=d.wrapClass||'';
-  const inner=`<img src="${src}" alt="${esc(d.alt||'')}" style="${imgStyle}"
-    ${isEditable?`class="img-ed-wrap" onclick="window._builder?.triggerImageEdit('${sec.id}','src')"`:''}>`;
+  let inner;
+  if(d.src){
+    inner=`<img src="${esc(d.src)}" alt="${esc(d.alt||'')}" style="${imgStyle};width:100%"
+      ${isEditable?`class="img-ed-wrap" onclick="window._builder?.triggerImageEdit('${sec.id}','src')"`:''}>`;
+  } else {
+    inner=`<div class="img-placeholder${isEditable?' img-ed-wrap':''}" style="${imgStyle}"
+      ${isEditable?`onclick="window._builder?.triggerImageEdit('${sec.id}','src')"`:''}>
+      <span>🖼</span>タップして画像を選択
+    </div>`;
+  }
   const linked=d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener">${inner}</a>`:inner;
   const linkBtn=`<button class="link-edit-btn" onclick="event.stopPropagation();window._builder?.editLink('${sec.id}')">${d.link?'🔗 リンクあり':'🔗 リンクなし'}</button>`;
-  return `<div class="${wrapCls} rv" style="${style}">${linked}${linkBtn}</div>`;
+  return `<div class="${wrapCls} rv" style="${wrapStyle}">${linked}${linkBtn}</div>`;
 }
 
 /* ── TEXT ── */
@@ -332,8 +339,10 @@ function renderGallery(sec){
         ${linked}
         <div class="gal-label">${esc(g.label||'')}</div>
       </div>`;}).join('');
+  const cardW = d.cardWidth || 212;
+  const cardH = Math.round(cardW * 0.594);
   return `
-<div class="gal-bg" style="background:${sec.bg.value}">
+<div class="gal-bg" style="background:${sec.bg.value};--gal-card-w:${cardW}px;--gal-card-h:${cardH}px">
   <div class="gal-head rv">
     <h2 class="sec-title">
       <img class="sec-icon" src="sozai/S__31580216.jpg" alt="">

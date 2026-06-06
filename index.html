@@ -76,9 +76,9 @@
     .gal-scroll::-webkit-scrollbar{display:none}
     .gal-scroll:active{cursor:grabbing}
     .gal-track{display:flex;gap:14px;width:max-content}
-    .gal-card{width:212px;flex-shrink:0;background:white;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;position:relative;transition:transform .22s ease,box-shadow .22s ease}
+    .gal-card{width:var(--gal-card-w,212px);flex-shrink:0;background:white;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;position:relative;transition:transform .22s ease,box-shadow .22s ease}
     .gal-card:hover{transform:translateY(-7px) scale(1.02);box-shadow:var(--sh-h)}
-    .gal-card img{width:100%;height:126px;object-fit:cover}
+    .gal-card img{width:100%;height:var(--gal-card-h,126px);object-fit:cover}
     .gal-label{padding:10px 12px;font-size:.79rem;color:var(--text-s);font-weight:bold;line-height:1.4}
 
     /* ── AFTER / TEMPLATE ── */
@@ -262,6 +262,21 @@
     /* ── BGピッカーリセットボタン ── */
     .bgp-reset-btn{width:100%;margin-top:6px;background:none;border:1px solid #e0e0e0;border-radius:10px;padding:8px;font-family:inherit;font-size:.82rem;color:var(--text-s);cursor:pointer}
     .bgp-reset-btn:hover{background:#f5f5f5}
+    /* ── サイズピッカー ── */
+    .szp-presets{display:flex;gap:6px;margin-bottom:10px}
+    .szp-btn{flex:1;background:#f1f8e9;border:2px solid var(--green-lt);border-radius:8px;padding:8px 4px;font-family:inherit;font-size:.82rem;font-weight:bold;color:var(--text);cursor:pointer;transition:background .15s,border-color .15s}
+    .szp-btn:hover{background:#c8e6c9;border-color:var(--green)}
+    .szp-btn.szp-active{background:var(--green);border-color:var(--green-dk);color:white}
+    .szp-custom{display:flex;align-items:center;gap:6px}
+    .szp-custom input{width:60px;padding:7px 8px;border:2px solid var(--green-lt);border-radius:8px;font-family:inherit;font-size:.88rem;outline:none;text-align:center}
+    .szp-custom input:focus{border-color:var(--green)}
+    .szp-unit{font-size:.82rem;color:var(--text-s);flex-shrink:0}
+    .szp-apply{flex:1;background:linear-gradient(135deg,#66bb6a,#388e3c);color:white;border:none;border-radius:8px;padding:8px;font-family:inherit;font-size:.82rem;font-weight:bold;cursor:pointer}
+    /* ── 画像プレースホルダー ── */
+    .img-placeholder{width:100%;min-height:120px;background:#f5f5f5;border:2px dashed #ccc;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#999;font-size:.88rem;padding:32px 16px;box-sizing:border-box;cursor:default}
+    .img-placeholder span{font-size:2rem}
+    body.edit-mode .img-placeholder.img-ed-wrap{cursor:pointer}
+    body.edit-mode .img-placeholder.img-ed-wrap:hover{border-color:var(--green);background:#f1f8e9;color:var(--green-dk)}
     /* ── 画像ピッカー ── */
     .img-picker-box{max-height:80vh;overflow-y:auto}
     .imgpk-upload-btn{width:100%;background:linear-gradient(135deg,#66bb6a,#388e3c);color:white;border:none;border-radius:10px;padding:11px;font-family:inherit;font-size:.9rem;font-weight:bold;cursor:pointer;margin-bottom:14px}
